@@ -59,6 +59,7 @@ margin-bottom: 15px;
     width: 20px;
     height: 20px;
     margin-right: 4px;
+    overflow: hidden;
 }
 
 .btnLinkInfo{color: $color-links;
@@ -66,3 +67,5 @@ background: inherit;
 outline: none;
 border: none;
 cursor: pointer;}
+
+.info {text-align: left;}

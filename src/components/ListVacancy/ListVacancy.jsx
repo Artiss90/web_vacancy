@@ -1,132 +1,105 @@
-import { useState } from 'react'
+import axios from 'axios';
+import { useEffect, useState } from 'react'
 import { styleNames } from 'utils/style-names';
 import style from './ListVacancy.module.scss'
 
 const sn = styleNames(style);
 
-const exampleList = [
-    {
-        data: '22/09/2021 22:37',
-        country: {
-            flag: 'https://web.telegram.org/z/img-apple-64/1f1f5-1f1f1.png',
-            alt: 'PL',
-            nameCountry: 'Польша',
-            nameCity: 'Познань'
-        },
-        vacancy: 'РАБОТНИК В ПРАЧЕЧНОЙ',
-        price: '960 EUR',
-        infoUrl: 'http://localhost:3000',
-        nameUrl: '/job_167',
-        id: 1
-    },
-    {
-        data: '22/09/2021 22:37',
-        country: {
-            flag: 'https://web.telegram.org/z/img-apple-64/1f1f5-1f1f1.png',
-            alt: 'PL',
-            nameCountry: 'Польша',
-            nameCity: 'Познань'
-        },
-        vacancy: 'РАБОТНИК В ПРАЧЕЧНОЙ',
-        price: '960 EUR',
-        infoUrl: 'http://localhost:3000',
-        nameUrl: '/job_167',
-        id: 2
-    },
-    {
-        data: '22/09/2021 22:37',
-        country: {
-            flag: 'https://web.telegram.org/z/img-apple-64/1f1f5-1f1f1.png',
-            alt: 'PL',
-            nameCountry: 'Польша',
-            nameCity: 'Познань'
-        },
-        vacancy: 'РАБОТНИК В ПРАЧЕЧНОЙ',
-        price: '960 EUR',
-        infoUrl: 'http://localhost:3000',
-        nameUrl: '/job_167',
-        id: 3
-    },
-    {
-        data: '22/09/2021 22:37',
-        country: {
-            flag: 'https://web.telegram.org/z/img-apple-64/1f1f5-1f1f1.png',
-            alt: 'PL',
-            nameCountry: 'Польша',
-            nameCity: 'Познань'
-        },
-        vacancy: 'РАБОТНИК В ПРАЧЕЧНОЙ',
-        price: '960 EUR',
-        infoUrl: 'http://localhost:3000',
-        nameUrl: '/job_167',
-        id: 4
-    },
-    {
-        data: '22/09/2021 22:37',
-        country: {
-            flag: 'https://web.telegram.org/z/img-apple-64/1f1f5-1f1f1.png',
-            alt: 'PL',
-            nameCountry: 'Польша',
-            nameCity: 'Познань'
-        },
-        vacancy: 'РАБОТНИК В ПРАЧЕЧНОЙ',
-        price: '960 EUR',
-        infoUrl: 'http://localhost:3000',
-        nameUrl: '/job_167',
-        id: 5
-    }]
-
-const exampleInfo = `Место работы: Poznań , (Daszewice) 15км. от Poznań
-
-ТРЕБОВАНИЯ:
-
-●Мужчины;
-● Био / виза / карта побыта;
-● БЕЗ опыта;
-● Возраст: до 55 лет.
-    ОБЯЗАННОСТИ:
-● Сварка калиток для ворот;
-● Помощь в сварке;
-УСЛОВИЯ:
-● Ставка 16 - 18 zł нетто(в зависимости от опыта);
-● Смена: 12 часов; 6 дней в неделю.
-● Жильё: 300зл./ мес.по 2 - 4 чел. (сем.пары отдельно).
-● Доезд - БЕСПЛАТНЫЙ.
-● Русскоговорящий координатор.
-● Официальное трудоустройство: оформление КАРТЫ ПОБЫТА!
-● Выход на работу на СЛЕДУЮЩИЙ день.
-
-Работодатель: null
-+ 380664801265`
-
 export default function ListVacancy() {
-    const [linkInfo, setLinkInfo] = useState('')
+    const [listVacancy, setListVacancy] = useState('')
     const [checkItem, setCheckItem] = useState('')
-    const getInfo = (url) => { setLinkInfo(url) }
+    const [startPagePagination, setStartPagePagination] = useState(0)
+
+    const AMOUNT_VISIBLE_VACANCY = 5
+
+    const paginationVacancy = listVacancy ? [...listVacancy].slice(startPagePagination, startPagePagination + AMOUNT_VISIBLE_VACANCY) : ''
+
+    useEffect(() => {
+        const getDataVacancy = () => axios.get('http://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=id&order[way]=desc', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                Authorization: 'Bearer z8hHegpeAPhEL8R5vVlcTbp59gVGozq93LPnL3WZ9KhUHLXJfetUuczTM5yh'
+            }
+        }).then(resolve => {
+            setListVacancy(resolve.data.data.offers)
+            console.log(resolve.data.data.offers)
+        }, reject => console.error(reject))
+        getDataVacancy()
+    }, [])
+
+    const goNextPage = () => {
+        setStartPagePagination(startPagePagination + AMOUNT_VISIBLE_VACANCY)
+    }
+    const goPreviousPage = () => {
+        if (startPagePagination >= AMOUNT_VISIBLE_VACANCY)
+            setStartPagePagination(startPagePagination - AMOUNT_VISIBLE_VACANCY)
+    }
+    const goBackList = () => {
+        setCheckItem('')
+    }
     return (
         <div>
-            <div className={style.container}>
+            {paginationVacancy && <div className={style.container}>
                 <ul className={style.list}>
-                    {exampleList.map(({ id, data, country: { flag, alt, nameCountry, nameCity }, vacancy, price, infoUrl, nameUrl }) => {
-                        let check = false;
-                        if (checkItem === id) {
-                            check = true
+                    {!checkItem ?
+                        paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, description }) => {
+                            const dataCountry = location_name.split(' ');
+                            const countryAlt = dataCountry[0];
+                            const country = dataCountry[1];
+                            const city = dataCountry[2];
+
+                            const date = new Date(updated_at);
+                            const visibleDate = date.toLocaleString();
+
+                            return (<li className={sn('item')} key={id}>
+                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
+                                <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
+                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
+                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${salary} ${salary_unit_name}`}</p>
+                                <p className={style.text}><span>Детальная инфо по ссылке </span><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/27a1.png" alt="➡️" />:<button type='button' className={style.btnLinkInfo} onClick={() => setCheckItem(id)}>{`/job_${id}`}</button></p>
+                            </li>)
                         }
-                        return (<li className={sn('item', { 'item__check': check })} key={id}>
-                            <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{data}</p>
-                            <p className={style.text}><img className={style.icon} src={flag} alt={alt} />{`${nameCountry}, ${nameCity}`}</p>
-                            <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${vacancy}`}</p>
-                            <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${price}`}</p>
-                            <p className={style.text}><span>Детальная инфо по ссылке </span><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/27a1.png" alt="➡️" />:<button type='button' className={style.btnLinkInfo} onClick={() => setCheckItem(id)}>{nameUrl}</button></p>
-                            {checkItem && <div><p>{exampleInfo}</p></div>}
-                        </li>)
-                    }
-                    )
+                        )
+                        :
+
+                        paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, description }) => {
+                            if (checkItem !== id) {
+                                return false
+                            }
+                            const dataCountry = location_name.split(' ');
+                            const countryAlt = dataCountry[0];
+                            const country = dataCountry[1];
+                            const city = dataCountry[2];
+
+                            const date = new Date(updated_at);
+                            const visibleDate = date.toLocaleString();
+
+                            return (<li className={sn('item')} key={id}>
+                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
+                                <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
+                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
+                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${salary} ${salary_unit_name}`}</p>
+                                <p className={style.text}>Детальная информация:</p>
+                                <br />
+                                {checkItem && <div>
+                                    <ul>
+                                        {description.split('\\n').join('&перенос_строки&').split('\n').join('&перенос_строки&').split('<br/>').join('&перенос_строки&').split('&перенос_строки&').map((listItem, i) => <li key={i} className={style.info}>{listItem}</li>)}
+                                    </ul>
+                                </div>}
+                            </li>)
+                        }
+                        )
+
                     }
                 </ul>
-                <button type='button' className={style.buttonLink} onClick={() => setCheckItem('')}>Далее</button>
+                {!checkItem ? <div>
+                    <button type='button' className={style.buttonLink} onClick={() => goNextPage()}>Вперед</button>
+                    {startPagePagination !== 0 && <button type='button' className={style.buttonLink} onClick={() => goPreviousPage()}>Назад</button>}
+                </div>
+                    :
+                    <button type='button' className={style.buttonLink} onClick={() => goBackList()}>Вернутся к списку</button>}
                 <a className={style.buttonLink}>Меню</a>
-            </div>
+            </div>}
 
         </div>
     )
