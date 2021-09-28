@@ -22,7 +22,7 @@ export default function ListVacancy() {
             }
         }).then(resolve => {
             setListVacancy(resolve.data.data.offers)
-            console.log(resolve.data.data.offers)
+            console.log("🚀 ~ file: ListVacancy.jsx ~ line 25 ~ useEffect ~ resolve", resolve)
         }, reject => console.error(reject))
         getDataVacancy()
     }, [])
@@ -85,6 +85,7 @@ export default function ListVacancy() {
                                     <ul>
                                         {description.split('\\n').join('&перенос_строки&').split('\n').join('&перенос_строки&').split('<br/>').join('&перенос_строки&').split('&перенос_строки&').map((listItem, i) => <li key={i} className={style.info}>{listItem}</li>)}
                                     </ul>
+                                    <button type='button' className={style.buttonLinkExpanded} onClick={() => { }}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4ac.png" alt="💬" />Откликнутся</button>
                                 </div>}
                             </li>)
                         }
@@ -92,13 +93,13 @@ export default function ListVacancy() {
 
                     }
                 </ul>
-                {!checkItem ? <div>
-                    <button type='button' className={style.buttonLink} onClick={() => goNextPage()}>Вперед</button>
-                    {startPagePagination !== 0 && <button type='button' className={style.buttonLink} onClick={() => goPreviousPage()}>Назад</button>}
+                {!checkItem ? <div className={style.containerBtnControl}>
+                    <button type='button' className={style.buttonLink} onClick={() => goNextPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/25b6.png" alt="▶️" />Далее</button>
+                    {startPagePagination !== 0 && <button type='button' className={style.buttonLinkRight} onClick={() => goPreviousPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Назад</button>}
                 </div>
                     :
-                    <button type='button' className={style.buttonLink} onClick={() => goBackList()}>Вернутся к списку</button>}
-                <a className={style.buttonLink}>Меню</a>
+                    <button type='button' className={style.buttonLinkExpanded} onClick={() => goBackList()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/21a9.png" alt="↩️" />Вернутся к списку</button>}
+                <a className={style.buttonLink} href='./'><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Меню</a>
             </div>}
 
         </div>
