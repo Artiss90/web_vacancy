@@ -10,6 +10,7 @@ export default function ListVacancy() {
     const [checkItem, setCheckItem] = useState('')
     const [infoVacancy, setInfoVacancy] = useState('')
     const [successApplyForVacancy, setSuccessApplyForVacancy] = useState(false)
+    const [endList, setEndList] = useState(false)
     const [startPagePagination, setStartPagePagination] = useState(0)
 
     const USER_TOKEN = 'z8hHegpeAPhEL8R5vVlcTbp59gVGozq93LPnL3WZ9KhUHLXJfetUuczTM5yh'
@@ -18,7 +19,7 @@ export default function ListVacancy() {
     const paginationVacancy = listVacancy ? [...listVacancy].slice(startPagePagination, startPagePagination + AMOUNT_VISIBLE_VACANCY) : ''
 
     useEffect(() => {
-        const getDataVacancy = () => axios.get('http://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=id&order[way]=desc', {
+        const getDataVacancy = () => axios.get('https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=id&order[way]=desc', {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 Authorization: `Bearer ${USER_TOKEN}`
@@ -31,31 +32,35 @@ export default function ListVacancy() {
     }, [])
 
     useEffect(() => {
-        const getInfoById = (vacancyID) => axios.get(`http://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}`, {
+        const getInfoById = (vacancyID) => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 Authorization: `Bearer ${USER_TOKEN}`
             }
         }).then(resolve => {
             setInfoVacancy(resolve.data.data.offer.description)
-            console.log("🚀 ~ file: ListVacancy.jsx ~ line 25 ~ useEffect ~ resolve", resolve)
         }, reject => console.error(reject))
         if (checkItem !== '') { getInfoById(checkItem) }
     }, [checkItem])
 
     const goNextPage = () => {
+        const roundLengthVacancy = listVacancy.length - listVacancy.length % AMOUNT_VISIBLE_VACANCY
         setStartPagePagination(startPagePagination + AMOUNT_VISIBLE_VACANCY)
+        if ((startPagePagination + AMOUNT_VISIBLE_VACANCY) === roundLengthVacancy) { // ? если дошли до конца списка - убираем кнопку далее
+            setEndList(true)
+            return
+        }
     }
     const goPreviousPage = () => {
-        if (startPagePagination >= AMOUNT_VISIBLE_VACANCY)
-            setStartPagePagination(startPagePagination - AMOUNT_VISIBLE_VACANCY)
+        if (startPagePagination >= AMOUNT_VISIBLE_VACANCY) { setStartPagePagination(startPagePagination - AMOUNT_VISIBLE_VACANCY) }
+        setEndList(false)
     }
     const goBackList = () => {
         setSuccessApplyForVacancy(false)
         setCheckItem('')
     }
 
-    const applyForVacancy = (vacancyID) => axios.post(`http://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}/apply`, {
+    const applyForVacancy = (vacancyID) => axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}/apply`, {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             Authorization: `Bearer ${USER_TOKEN}`
@@ -118,8 +123,8 @@ export default function ListVacancy() {
                                             </ul>
                                             {successApplyForVacancy ? <p className={style.textSuccess}>✅ Отправлено</p> :
                                                 // ! закоменчено пока запрос не работает, стоит заглушка которая просто переключает флаг
-                                                // <button type='button' className={style.buttonLinkExpanded} onClick={() => { applyForVacancy(id) }}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4ac.png" alt="💬" />Откликнутся</button>
-                                                <button type='button' className={style.buttonLinkExpanded} onClick={() => { setSuccessApplyForVacancy(true) }}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4ac.png" alt="💬" />Откликнутся</button>
+                                                <button type='button' className={style.buttonLinkExpanded} onClick={() => { applyForVacancy(id) }}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4ac.png" alt="💬" />Откликнутся</button>
+                                                // <button type='button' className={style.buttonLinkExpanded} onClick={() => { setSuccessApplyForVacancy(true) }}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4ac.png" alt="💬" />Откликнутся</button>
                                             }
                                         </div>}
                                     </li>)
@@ -130,13 +135,13 @@ export default function ListVacancy() {
                         </ul>
                     </div>
                     {!checkItem ? <div className={style.containerBtnControl}>
-                        <button type='button' className={style.buttonLink} onClick={() => goNextPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/25b6.png" alt="▶️" />Далее</button>
-                        {startPagePagination !== 0 && <button type='button' className={style.buttonLinkRight} onClick={() => goPreviousPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Назад</button>}
+                        {!endList && <button type='button' className={style.buttonLink} onClick={() => goNextPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/25b6.png" alt="▶️" />Далее</button>}
+                        {startPagePagination !== 0 && <button type='button' className={sn({ 'buttonLinkRight': !endList }, { 'buttonLink': endList })} onClick={() => goPreviousPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Назад</button>}
                     </div>
                         :
                         <button type='button' className={style.buttonLinkExpanded} onClick={() => goBackList()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/21a9.png" alt="↩️" />Назад к списку</button>}
                     <a className={style.buttonLink} href='./'><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Меню</a>
                 </div>}
-        </div>
+        </div >
     )
 }

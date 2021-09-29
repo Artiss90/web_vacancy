@@ -38,11 +38,12 @@ margin-bottom: 15px;
     color: #ffffff;
     font-weight: 500;
     text-transform: none;
-    &:hover, &:focus {background-color: rgba(90, 110, 70, 0.3);}
+    &:hover {background-color: rgba(90, 110, 70, 0.3);}
 }
 .buttonLinkRight {
     @extend .buttonLink;
-    margin-left: 8px;}
+    margin-left: 8px;
+}
 
 .buttonLinkExpanded{
  @extend .buttonLink;
@@ -72,7 +73,8 @@ background: inherit;
 outline: none;
 border: none;
 cursor: pointer;
-text-decoration: underline;}
+&:hover,&:focus {text-decoration: underline;}
+}
 
 .info {text-align: left;}
 
