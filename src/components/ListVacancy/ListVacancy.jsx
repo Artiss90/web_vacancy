@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react'
+import { createBrowserHistory } from 'history'
 import { styleNames } from 'utils/style-names';
 import style from './ListVacancy.module.scss'
 
@@ -13,7 +14,10 @@ export default function ListVacancy() {
     const [endList, setEndList] = useState(false)
     const [startPagePagination, setStartPagePagination] = useState(0)
 
-    const USER_TOKEN = 'z8hHegpeAPhEL8R5vVlcTbp59gVGozq93LPnL3WZ9KhUHLXJfetUuczTM5yh'
+    const search = createBrowserHistory().location.search; // * текущий параметр
+    const USER_TOKEN = 'z8hHegpeAPhEL8R5vVlcTbp59gVGozq93LPnL3WZ9KhUHLXJfetUuczTM5yh' // ! для тестов, потом убрать
+    const clientToken = search.replace('?client=', '') || USER_TOKEN;
+
     const AMOUNT_VISIBLE_VACANCY = 4
 
     const paginationVacancy = listVacancy ? [...listVacancy].slice(startPagePagination, startPagePagination + AMOUNT_VISIBLE_VACANCY) : ''
@@ -22,7 +26,7 @@ export default function ListVacancy() {
         const getDataVacancy = () => axios.get('https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=id&order[way]=desc', {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                Authorization: `Bearer ${USER_TOKEN}`
+                Authorization: `Bearer ${clientToken}`
             }
         }).then(resolve => {
             setListVacancy(resolve.data.data.offers)
@@ -35,7 +39,7 @@ export default function ListVacancy() {
         const getInfoById = (vacancyID) => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                Authorization: `Bearer ${USER_TOKEN}`
+                Authorization: `Bearer ${clientToken}`
             }
         }).then(resolve => {
             setInfoVacancy(resolve.data.data.offer.description)
@@ -63,7 +67,7 @@ export default function ListVacancy() {
     const applyForVacancy = (vacancyID) => axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}/apply`, {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            Authorization: `Bearer ${USER_TOKEN}`
+            Authorization: `Bearer ${clientToken}`
         }
     }).then(resolve => {
         setSuccessApplyForVacancy(true)
