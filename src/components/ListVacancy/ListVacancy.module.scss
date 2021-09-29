@@ -81,6 +81,10 @@ cursor: pointer;
 &:hover,&:focus {text-decoration: underline;}
 }
 
+.btnLinkWork{
+ @extend .btnLinkInfo;
+ margin-left: 10px;    
+}
 .info {text-align: left;}
 
 .containerBtnControl {display: flex;

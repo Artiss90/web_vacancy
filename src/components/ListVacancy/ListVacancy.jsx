@@ -10,6 +10,7 @@ export default function ListVacancy() {
     const [listVacancy, setListVacancy] = useState('')
     const [checkItem, setCheckItem] = useState('')
     const [infoVacancy, setInfoVacancy] = useState('')
+    console.log("🚀 ~ file: ListVacancy.jsx ~ line 13 ~ ListVacancy ~ infoVacancy", infoVacancy)
     const [successApplyForVacancy, setSuccessApplyForVacancy] = useState(false)
     const [endList, setEndList] = useState(false)
     const [startPagePagination, setStartPagePagination] = useState(0)
@@ -42,7 +43,7 @@ export default function ListVacancy() {
                 Authorization: `Bearer ${clientToken}`
             }
         }).then(resolve => {
-            setInfoVacancy(resolve.data.data.offer.description)
+            setInfoVacancy(resolve.data.data.offer)
         }, reject => console.error(reject))
         if (checkItem !== '') { getInfoById(checkItem) }
     }, [checkItem])
@@ -61,6 +62,7 @@ export default function ListVacancy() {
     }
     const goBackList = () => {
         setSuccessApplyForVacancy(false)
+        setInfoVacancy('')
         setCheckItem('')
     }
 
@@ -123,7 +125,11 @@ export default function ListVacancy() {
                                         <br />
                                         {checkItem && <div>
                                             <ul>
-                                                {infoVacancy && infoVacancy.split('\\n').join('&перенос_строки&').split('\n').join('&перенос_строки&').split('<br/>').join('&перенос_строки&').split('&перенос_строки&').map((listItem, i) => <li key={i} className={style.info}>{listItem}</li>)}
+                                                {infoVacancy.description && infoVacancy.description.split('\\n').join('&перенос_строки&').split('\n').join('&перенос_строки&').split('<br/>').join('&перенос_строки&').split('&перенос_строки&').map((listItem, i) => <li key={i} className={style.info}>{listItem}</li>)}
+                                                <br />
+                                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b2.png" alt="💲" />Работодатель: <a href={`https://${infoVacancy.user_site}`} title={`https://${infoVacancy.user_site}`} className={style.btnLinkWork}>{infoVacancy.user_company}</a></p>
+                                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f3e2.png" alt="🏢" />{infoVacancy.user_address}</p>
+                                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4f1.png" alt="📱" /><a href={`tel:${infoVacancy.user_phone}`} className={style.btnLinkWork}>{infoVacancy.user_phone}</a></p>
                                             </ul>
                                             {successApplyForVacancy ? <p className={style.textSuccess}>✅ Отправлено</p> :
                                                 // ! закоменчено пока запрос не работает, стоит заглушка которая просто переключает флаг
