@@ -1,25 +1,29 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react'
 import { createBrowserHistory } from 'history'
+import queryString from 'query-string'
+import Loader from 'react-loader-spinner';
 import { styleNames } from 'utils/style-names';
 import style from './ListVacancy.module.scss'
-import Loader from 'react-loader-spinner';
 
 const sn = styleNames(style);
+
+
 
 export default function ListVacancy() {
     const [listVacancy, setListVacancy] = useState('')
     const [checkItem, setCheckItem] = useState('')
     const [infoVacancy, setInfoVacancy] = useState('')
-    console.log("🚀 ~ file: ListVacancy.jsx ~ line 13 ~ ListVacancy ~ infoVacancy", infoVacancy)
     const [successApplyForVacancy, setSuccessApplyForVacancy] = useState(false)
     const [endList, setEndList] = useState(false)
     const [loading, setLoading] = useState(false)
     const [startPagePagination, setStartPagePagination] = useState(0)
 
     const search = createBrowserHistory().location.search; // * текущий параметр
-    const USER_TOKEN = 'z8hHegpeAPhEL8R5vVlcTbp59gVGozq93LPnL3WZ9KhUHLXJfetUuczTM5yh' // ! для тестов, потом убрать
-    const clientToken = search.replace('?client=', '') || USER_TOKEN;
+    const parsedSearch = queryString.parse(search);
+    const clientToken = parsedSearch.client;
+    const orderBy = parsedSearch['order[by]'] || 'id';
+    const orderWay = parsedSearch['order[way]'] || 'desc';
 
     const AMOUNT_VISIBLE_VACANCY = 4
 
@@ -27,7 +31,7 @@ export default function ListVacancy() {
 
     useEffect(() => {
         setLoading(true)
-        const getDataVacancy = () => axios.get('https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=id&order[way]=desc', {
+        const getDataVacancy = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=${orderBy}&order[way]=${orderWay}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 Authorization: `Bearer ${clientToken}`
@@ -40,7 +44,7 @@ export default function ListVacancy() {
             setLoading(false)
             console.error(reject)})
         getDataVacancy()
-    }, [clientToken])
+    }, [clientToken, orderBy, orderWay])
 
     useEffect(() => {
         setLoading(true)
@@ -97,14 +101,16 @@ export default function ListVacancy() {
         <div>
             {paginationVacancy &&
                 <div>
-                    {loading ? 
-                     <Loader
-                     type="TailSpin"
-                     color="#00BFFF"
-                     height={100}
-                     width={100}
-                     timeout={6000} //6 secs
-                   />
+                    {loading ?
+                    <div className={style.containerLoader}>
+                        <Loader
+                        type="TailSpin"
+                        color="#00BFFF"
+                        height={100}
+                        width={100}
+                        timeout={6000} //6 secs
+                      />
+                    </div> 
                    :
                     <div className={style.container}>
                         <ul className={style.list}>
