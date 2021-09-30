@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { createBrowserHistory } from 'history'
 import { styleNames } from 'utils/style-names';
 import style from './ListVacancy.module.scss'
+import Loader from 'react-loader-spinner';
 
 const sn = styleNames(style);
 
@@ -13,6 +14,7 @@ export default function ListVacancy() {
     console.log("🚀 ~ file: ListVacancy.jsx ~ line 13 ~ ListVacancy ~ infoVacancy", infoVacancy)
     const [successApplyForVacancy, setSuccessApplyForVacancy] = useState(false)
     const [endList, setEndList] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [startPagePagination, setStartPagePagination] = useState(0)
 
     const search = createBrowserHistory().location.search; // * текущий параметр
@@ -24,6 +26,7 @@ export default function ListVacancy() {
     const paginationVacancy = listVacancy ? [...listVacancy].slice(startPagePagination, startPagePagination + AMOUNT_VISIBLE_VACANCY) : ''
 
     useEffect(() => {
+        setLoading(true)
         const getDataVacancy = () => axios.get('https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=id&order[way]=desc', {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -31,22 +34,33 @@ export default function ListVacancy() {
             }
         }).then(resolve => {
             setListVacancy(resolve.data.data.offers)
+            setLoading(false)
             console.log("🚀 ~ file: ListVacancy.jsx ~ line 25 ~ useEffect ~ resolve", resolve)
-        }, reject => console.error(reject))
+        }, reject => {
+            setLoading(false)
+            console.error(reject)})
         getDataVacancy()
-    }, [])
+    }, [clientToken])
 
     useEffect(() => {
+        setLoading(true)
         const getInfoById = (vacancyID) => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 Authorization: `Bearer ${clientToken}`
             }
         }).then(resolve => {
+            setLoading(false)
             setInfoVacancy(resolve.data.data.offer)
-        }, reject => console.error(reject))
-        if (checkItem !== '') { getInfoById(checkItem) }
-    }, [checkItem])
+        }, reject => {
+            setLoading(false)
+            console.error(reject)})
+        if (checkItem !== '') { 
+            getInfoById(checkItem)
+            return
+        }
+        setLoading(false)
+    }, [checkItem,clientToken])
 
     const goNextPage = () => {
         const roundLengthVacancy = listVacancy.length - listVacancy.length % AMOUNT_VISIBLE_VACANCY
@@ -61,9 +75,13 @@ export default function ListVacancy() {
         setEndList(false)
     }
     const goBackList = () => {
+        setLoading(true)
         setSuccessApplyForVacancy(false)
         setInfoVacancy('')
         setCheckItem('')
+        setTimeout(() => {
+            setLoading(false)
+        }, 500);
     }
 
     const applyForVacancy = (vacancyID) => axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}/apply`, {
@@ -79,6 +97,15 @@ export default function ListVacancy() {
         <div>
             {paginationVacancy &&
                 <div>
+                    {loading ? 
+                     <Loader
+                     type="TailSpin"
+                     color="#00BFFF"
+                     height={100}
+                     width={100}
+                     timeout={6000} //6 secs
+                   />
+                   :
                     <div className={style.container}>
                         <ul className={style.list}>
                             {!checkItem ?
@@ -99,7 +126,7 @@ export default function ListVacancy() {
                                         <p className={style.text}><span className={style.textInfo}>Детальная инфо по ссылке </span><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/27a1.png" alt="➡️" />:<button type='button' className={style.btnLinkInfo} onClick={() => setCheckItem(id)}>{`/job_${id}`}</button></p>
                                     </li>)
                                 }
-                                )
+                                )                               
                                 :
 
                                 paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, description }) => {
@@ -133,10 +160,10 @@ export default function ListVacancy() {
                                     </li>)
                                 }
                                 )
-
                             }
                         </ul>
                     </div>
+                    }
                    {infoVacancy && <button type='button' className={style.buttonLinkExpanded} onClick={() => { applyForVacancy(infoVacancy?.id) }}>{successApplyForVacancy ? "✅ Отправлено" : "💬 Откликнутся"}</button>}
                     {!checkItem ? <div className={style.containerBtnControl}>
                         {startPagePagination !== 0 && <button type='button' className={sn({ 'buttonLinkMargin': !endList }, { 'buttonLink': endList })} onClick={() => goPreviousPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Назад</button>}
@@ -145,7 +172,8 @@ export default function ListVacancy() {
                         :
                         <button type='button' className={style.buttonLinkExpanded} onClick={() => goBackList()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/21a9.png" alt="↩️" />Назад к списку</button>}
                     <a className={style.buttonLink} href='./'><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Меню</a>
-                </div>}
+                </div>
+                }
         </div >
     )
 }
