@@ -75,8 +75,6 @@ export default function ListVacancy() {
         setSuccessApplyForVacancy(true)
     }, reject => console.error(reject))
 
-
-
     return (
         <div>
             {paginationVacancy &&
@@ -131,11 +129,6 @@ export default function ListVacancy() {
                                                 <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f3e2.png" alt="🏢" />{infoVacancy.user_address}</p>
                                                 <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4f1.png" alt="📱" /><a href={`tel:${infoVacancy.user_phone}`} className={style.btnLinkWork}>{infoVacancy.user_phone}</a></p>
                                             </ul>
-                                            {successApplyForVacancy ? <p className={style.textSuccess}>✅ Отправлено</p> :
-                                                // ! закоменчено пока запрос не работает, стоит заглушка которая просто переключает флаг
-                                                <button type='button' className={style.buttonLinkExpanded} onClick={() => { applyForVacancy(id) }}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4ac.png" alt="💬" />Откликнутся</button>
-                                                // <button type='button' className={style.buttonLinkExpanded} onClick={() => { setSuccessApplyForVacancy(true) }}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4ac.png" alt="💬" />Откликнутся</button>
-                                            }
                                         </div>}
                                     </li>)
                                 }
@@ -144,6 +137,7 @@ export default function ListVacancy() {
                             }
                         </ul>
                     </div>
+                   {infoVacancy && <button type='button' className={style.buttonLinkExpanded} onClick={() => { applyForVacancy(infoVacancy?.id) }}>{successApplyForVacancy ? "✅ Отправлено" : "💬 Откликнутся"}</button>}
                     {!checkItem ? <div className={style.containerBtnControl}>
                         {startPagePagination !== 0 && <button type='button' className={sn({ 'buttonLinkMargin': !endList }, { 'buttonLink': endList })} onClick={() => goPreviousPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Назад</button>}
                         {!endList && <button type='button' className={style.buttonLink} onClick={() => goNextPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/25b6.png" alt="▶️" />Далее</button>}
