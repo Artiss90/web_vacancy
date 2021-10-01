@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createBrowserHistory } from 'history'
 import queryString from 'query-string'
 import Loader from 'react-loader-spinner';
@@ -7,8 +7,6 @@ import { styleNames } from 'utils/style-names';
 import style from './ListVacancy.module.scss'
 
 const sn = styleNames(style);
-
-
 
 export default function ListVacancy() {
     const [listVacancy, setListVacancy] = useState('')
@@ -20,23 +18,25 @@ export default function ListVacancy() {
     const [startPagePagination, setStartPagePagination] = useState(0)
 
     const search = createBrowserHistory().location.search; // * текущий параметр
-    const parsedSearch = queryString.parse(search);
+    const parsedSearch = queryString.parse(search); // * массив параметров
     const clientToken = parsedSearch.client;
     const orderBy = parsedSearch['order[by]'] || 'id';
     const orderWay = parsedSearch['order[way]'] || 'desc';
+    const AMOUNT_VISIBLE_VACANCY = parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
 
-    const AMOUNT_VISIBLE_VACANCY = 4
+    const memoizedHeader = useMemo(() => {
+        const headers = {
+        'X-Requested-With': 'XMLHttpRequest',
+        Authorization: `Bearer ${clientToken}`
+    }
+return headers}, [clientToken]);
 
+    axios.defaults.headers = memoizedHeader // хедеры по умолчанию для всех запросов 
     const paginationVacancy = listVacancy ? [...listVacancy].slice(startPagePagination, startPagePagination + AMOUNT_VISIBLE_VACANCY) : ''
 
     useEffect(() => {
         setLoading(true)
-        const getDataVacancy = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=${orderBy}&order[way]=${orderWay}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                Authorization: `Bearer ${clientToken}`
-            }
-        }).then(resolve => {
+        const getDataVacancy = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=${orderBy}&order[way]=${orderWay}`).then(resolve => {
             setListVacancy(resolve.data.data.offers)
             setLoading(false)
             console.log("🚀 ~ file: ListVacancy.jsx ~ line 25 ~ useEffect ~ resolve", resolve)
@@ -44,16 +44,11 @@ export default function ListVacancy() {
             setLoading(false)
             console.error(reject)})
         getDataVacancy()
-    }, [clientToken, orderBy, orderWay])
+    }, [clientToken, memoizedHeader, orderBy, orderWay])
 
     useEffect(() => {
         setLoading(true)
-        const getInfoById = (vacancyID) => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                Authorization: `Bearer ${clientToken}`
-            }
-        }).then(resolve => {
+        const getInfoById = (vacancyID) => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}`).then(resolve => {
             setLoading(false)
             setInfoVacancy(resolve.data.data.offer)
         }, reject => {
@@ -64,7 +59,7 @@ export default function ListVacancy() {
             return
         }
         setLoading(false)
-    }, [checkItem,clientToken])
+    }, [checkItem, clientToken, memoizedHeader])
 
     const goNextPage = () => {
         const roundLengthVacancy = listVacancy.length - listVacancy.length % AMOUNT_VISIBLE_VACANCY
@@ -88,13 +83,12 @@ export default function ListVacancy() {
         }, 500);
     }
 
-    const applyForVacancy = (vacancyID) => axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}/apply`, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            Authorization: `Bearer ${clientToken}`
-        }
-    }).then(resolve => {
-        setSuccessApplyForVacancy(true)
+    const applyForVacancy = (vacancyID) => axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}/apply`).then(resolve => {
+    if(resolve.status === 201){ 
+    setSuccessApplyForVacancy(true)
+    return
+    }
+    console.error('в ответе пришел не статус 201');
     }, reject => console.error(reject))
 
     return (
