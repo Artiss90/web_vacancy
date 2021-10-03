@@ -15,15 +15,38 @@ export default function ListVacancy() {
     const [successApplyForVacancy, setSuccessApplyForVacancy] = useState(false)
     const [endList, setEndList] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [getEdit, setGetEdit] = useState(false)
+    const [showInput, setShowInput] = useState(false)
+    const [showViewDeleteVacancy, setShowViewDeleteVacancy] = useState(false)
+    const [textMenu, setTextMenu] = useState('')
+    const [listApply, setListApply] = useState('')
+    const [valueInput, setValueInput] = useState('')
+    const [fieldName, setFieldName] = useState('')
+    const [listCountry, setListCountry] = useState('')
+    const [countryID, setCountryID] = useState('')
     const [startPagePagination, setStartPagePagination] = useState(0)
+    
+    const ROLE_CUSTOMER = 'customer';
+    const ROLE_EMPLOYER = 'admin';
 
+    const LIST_FIELD_NAME = {
+        name: 'name',
+        description: 'description',
+        phone_number: 'phone_number',
+        salary: 'salary',
+        location_id: 'location_id'
+    }
+    console.log("🚀 ~ file: ListVacancy.jsx ~ line 25 ~ ListVacancy ~ fieldName", (fieldName === (LIST_FIELD_NAME.salary || LIST_FIELD_NAME.location_id)))
+    
     const search = createBrowserHistory().location.search; // * текущий параметр
+    const ROLE = createBrowserHistory().location.pathname.replace(/\//g, '') || ROLE_CUSTOMER; // * текущий путь
+
     const parsedSearch = queryString.parse(search); // * массив параметров
-    const clientToken = parsedSearch.client;
+    const clientToken = parsedSearch.client || 'lccCnXFy9De65m3LWyZFxj6GlbghZfsobuEgPW65wFSpLyftX56A7mYIimSd'; // ! убрать по-умолчанию после теста
     const orderBy = parsedSearch['order[by]'] || 'id';
     const orderWay = parsedSearch['order[way]'] || 'desc';
+    const userId = parsedSearch['user-id'] || '76'; // ! убрать по-умолчанию после теста
     const AMOUNT_VISIBLE_VACANCY = parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
-
     const memoizedHeader = useMemo(() => {
         const headers = {
         'X-Requested-With': 'XMLHttpRequest',
@@ -36,15 +59,23 @@ return headers}, [clientToken]);
 
     useEffect(() => {
         setLoading(true)
-        const getDataVacancy = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=${orderBy}&order[way]=${orderWay}`).then(resolve => {
+        const getDataVacancyCustomer = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=${orderBy}&order[way]=${orderWay}`).then(resolve => {
             setListVacancy(resolve.data.data.offers)
             setLoading(false)
-            console.log("🚀 ~ file: ListVacancy.jsx ~ line 25 ~ useEffect ~ resolve", resolve)
         }, reject => {
             setLoading(false)
             console.error(reject)})
-        getDataVacancy()
-    }, [clientToken, memoizedHeader, orderBy, orderWay])
+        const getDataVacancyEmployer = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/userOffers/${userId}`
+    ).then(resolve => {
+            setListVacancy(resolve.data.data.user_offers) 
+            setLoading(false)
+        }, reject => {
+            setLoading(false)
+            console.error(reject)})
+            if(ROLE === ROLE_CUSTOMER){ getDataVacancyCustomer()}
+            if(ROLE === ROLE_EMPLOYER){ getDataVacancyEmployer()}
+            
+    }, [ROLE, clientToken, memoizedHeader, orderBy, orderWay, userId])
 
     useEffect(() => {
         setLoading(true)
@@ -73,16 +104,7 @@ return headers}, [clientToken]);
         if (startPagePagination >= AMOUNT_VISIBLE_VACANCY) { setStartPagePagination(startPagePagination - AMOUNT_VISIBLE_VACANCY) }
         setEndList(false)
     }
-    const goBackList = () => {
-        setLoading(true)
-        setSuccessApplyForVacancy(false)
-        setInfoVacancy('')
-        setCheckItem('')
-        setTimeout(() => {
-            setLoading(false)
-        }, 500);
-    }
-
+    
     const applyForVacancy = (vacancyID) => axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${vacancyID}/apply`).then(resolve => {
     if(resolve.status === 201){ 
     setSuccessApplyForVacancy(true)
@@ -91,6 +113,71 @@ return headers}, [clientToken]);
     console.error('в ответе пришел не статус 201');
     }, reject => console.error(reject))
 
+    const getUpdateDate = (id)=> {axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/dateUpdate`).then(resolve => {
+        if(resolve.status === 200){ 
+        setTextMenu('⏰ Поздравляю, вакансия самая первая в поиске')
+        return
+        }
+        console.error('в ответе пришел не статус 200');
+    }, reject => console.error(reject))}
+
+    // ! getEditVacancy не разобрался как передать параметры
+    const getEditVacancy = (id, params)=> {axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, params).then(resolve => {
+        if(resolve.status === 200){ 
+        setTextMenu('Вакансия обновлена! 💾')
+        return
+        }
+        console.error('в ответе пришел не статус 200');
+    }, reject => console.error(reject))}
+
+    // ! getListCountry не разобрался получить города определенной страны
+    const getListCountry = ()=> {axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/locations?countriesOnly=true`
+    ).then(resolve => {
+        if(resolve.status === 200){ 
+        setListCountry(resolve.data.data.locations)
+        return
+        }
+        console.error('в ответе пришел не статус 200');
+    }, reject => console.error(reject))}
+    
+    const deleteVacancy = (id) => {axios.delete(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/delete`).then(resolve => {
+        if(resolve.status === 200){ 
+            setTextMenu('Вакансия удалена ❌')
+            return
+        }
+        console.error('в ответе пришел не статус 200');
+        }, reject => {
+            setTextMenu('Откликов ненайдено') // ? 404 ошибка когда откликов нет  
+            console.error(reject)})}
+
+    const getShowApply = (id) => {axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/showApply`).then(resolve => {
+        if(resolve.status === 200){ 
+            setListApply(resolve.data.data.applications)
+            return
+        }
+        console.error('в ответе пришел не статус 200');
+        }, reject => {
+            setTextMenu('Откликов ненайдено') // ? 404 ошибка когда откликов нет  
+            console.error(reject)})}
+
+    const changeValueInput = evt => {
+        evt.preventDefault()
+        setValueInput(evt.target.value)}
+
+    const goBackList = () => {
+                setLoading(true)
+                setSuccessApplyForVacancy(false)
+                setInfoVacancy('')
+                setCheckItem('')
+                setGetEdit(false)
+                setTextMenu('')
+                setListApply('')
+                setValueInput('')
+                setShowViewDeleteVacancy(false)
+                setTimeout(() => {
+                    setLoading(false)
+                }, 500);
+            }
     return (
         <div>
             {paginationVacancy &&
@@ -164,10 +251,129 @@ return headers}, [clientToken]);
                         </ul>
                     </div>
                     }
-                   {infoVacancy && <button type='button' className={style.buttonLinkExpanded} onClick={() => { applyForVacancy(infoVacancy?.id) }}>{successApplyForVacancy ? "✅ Отправлено" : "💬 Откликнутся"}</button>}
+                    {/* кнопки управления для искателя работы */}
+                   {infoVacancy && ROLE === ROLE_CUSTOMER && <button type='button' className={style.buttonLinkExpanded} onClick={() => { applyForVacancy(infoVacancy?.id) }}>{successApplyForVacancy ? "✅ Отправлено" : "💬 Откликнутся"}</button>}
+                     {/* кнопки управления для работодателя не в режиме редактирования вакансии*/}
+                   {infoVacancy && ROLE === ROLE_EMPLOYER && !getEdit && 
+                   <div>
+                       {/* информирующее сообщение для пользователя*/}
+                        <p className={style.textMenu}>{textMenu}</p>
+                       {/* блок отображения списка откликов     */}
+        {listApply && <div className={style.textMenu}> 
+                        <p className={style.text}>{` ℹ Отклики на вакансию ${infoVacancy.name}`}</p>
+                    {infoVacancy?.locations && <p className={style.text}>{`🌐 ${infoVacancy.locations[0].name}`}</p>}
+                        <p className={style.text}>Отклики👇:</p>
+        <ul>
+        {listApply.map(item => <li key={item.user_phone}>
+            <p className={style.text}>{`👤   ${item.user_name}`}</p>
+            <p className={style.text}>☎️<a href={`tel:${item.user_phone}`} className={style.btnLinkWork}>{item.user_phone}</a></p>
+        </li>)}
+        </ul>
+        </div>}  
+        {showViewDeleteVacancy && <div className={style.containerBtnControlMenu}>
+            <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        deleteVacancy(infoVacancy?.id)
+                        setShowViewDeleteVacancy(false)
+                           }}>{"Да 🗑️"}</button>
+            <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setShowViewDeleteVacancy(false)
+                        setTextMenu('')
+                           }}>{"Нет"}</button>
+            </div>}
+                    {/* основной блок кнопок управления */}
+            {!showViewDeleteVacancy && <div className={style.containerBtnControlMenu}>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setGetEdit(true)
+                        setListApply('')
+                        setTextMenu('Что вы хотите изменить? ✏️')
+                           }}>{"✏️ Редактировать"}</button>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setListApply('')
+                        getUpdateDate(infoVacancy?.id)
+                           }}>{"🆙 Дата"}</button>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => {
+                        setListApply('') 
+                        setTextMenu('Хотите удалить вакансию?')
+                        setShowViewDeleteVacancy(true) // * окно подтверждение удаления
+                           }}>{"❌ Удалить"}</button>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        getShowApply(infoVacancy?.id)
+                           }}>{"💬 Отклики"}</button>
+                   </div>}
+                   </div>}
+                   {/* кнопки управления для работодателя в режиме редактирования вакансии*/}
+                   {infoVacancy && ROLE === ROLE_EMPLOYER && getEdit && 
+                   <div>
+                       {/* информирующее сообщение для пользователя*/}
+                       <p className={style.textMenu}>{textMenu}</p>
+                       {showInput && <div>
+                           {/* для редакции большенства полей*/}
+                           {((fieldName !== LIST_FIELD_NAME.description ) && (fieldName !== LIST_FIELD_NAME.location_id )) && <input type={(fieldName === LIST_FIELD_NAME.salary) ? 'number' : 'text'} onChange={changeValueInput} value={valueInput} className={style.field}/>}
+                            {/* для редакции поля 'описания' мультилинейное поле */}
+                           {fieldName === LIST_FIELD_NAME.description && <textarea onChange={changeValueInput} value={valueInput} className={style.field}/>}
+                           {fieldName === LIST_FIELD_NAME.location_id && <ul className={style.containerBtnControlMenu}>
+                            {listCountry && listCountry.map(item => <li key={item.id}><button type='button' className={style.buttonLinkGroup} onClick={() => setCountryID(item.id)
+                           }>{item.name}</button></li>)}
+                               </ul>}
+                           <div className={style.containerBtnControlMenu}>
+                           <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        getEditVacancy(infoVacancy?.id, {[fieldName]: valueInput})
+                        setShowInput(false)
+                        setFieldName('')
+                        setTextMenu('Что вы хотите изменить? ✏️')
+                           }}>Сохранить 💾</button>
+                           <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setValueInput('')
+                        setShowInput(false)
+                        setFieldName('')
+                        setTextMenu('Что вы хотите изменить? ✏️')
+                           }}>Отмена ❌</button>
+                           </div>
+                           </div>}
+                       {/* основной блок кнопок редактирования */}
+                       {!showInput && <div className={style.containerBtnControlMenu}>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setGetEdit(true)
+                        setShowInput(true)
+                        setFieldName(LIST_FIELD_NAME.name)
+                        setTextMenu('Укажите новое значение для параметра 📎 Название')
+                           }}>📎 Название</button>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setGetEdit(true)
+                        setShowInput(true)
+                        setFieldName(LIST_FIELD_NAME.description)
+                        setTextMenu('Укажите новое значение для параметра 📜 Описание')
+                           }}>📜 Описание</button>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setGetEdit(true)
+                        setShowInput(true)
+                        setFieldName(LIST_FIELD_NAME.salary)
+                        setTextMenu('Укажите новое значение для параметра 💶 Зарплата')
+                           }}>💶 Зарплата</button>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setGetEdit(true)
+                        setShowInput(true)
+                        setFieldName(LIST_FIELD_NAME.phone_number)
+                        setTextMenu('Укажите новое значение для параметра 📲 Номер телефона')
+                           }}>📲 Номер телефона</button>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setGetEdit(true)
+                        setShowInput(true)
+                        setFieldName(LIST_FIELD_NAME.location_id)
+                        getListCountry()
+                        setTextMenu('В какой стране 🌐 будет работать сотрудник?')
+                           }}>🌐 Геолокация</button>
+                       <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setGetEdit(false)
+                        setTextMenu('')
+                           }}>⬅️ Назад</button>
+                       </div>}
+                   </div>}
+
                     {!checkItem ? <div className={style.containerBtnControl}>
                         {startPagePagination !== 0 && <button type='button' className={sn({ 'buttonLinkMargin': !endList }, { 'buttonLink': endList })} onClick={() => goPreviousPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Назад</button>}
-                        {!endList && <button type='button' className={style.buttonLink} onClick={() => goNextPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/25b6.png" alt="▶️" />Далее</button>}
+                        {/*отображаем если не конец списка и если длина списка больше количества вакансий на 1 странице*/}
+                        {!endList && (listVacancy.length > AMOUNT_VISIBLE_VACANCY)&& <button type='button' className={style.buttonLink} onClick={() => goNextPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/25b6.png" alt="▶️" />Далее</button>}
                     </div>
                         :
                         <button type='button' className={style.buttonLinkExpanded} onClick={() => goBackList()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/21a9.png" alt="↩️" />Назад к списку</button>}
