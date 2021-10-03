@@ -31,12 +31,12 @@ export default function ListVacancy() {
 
     const LIST_FIELD_NAME = {
         name: 'name',
+        category_id: 'category_id',
         description: 'description',
         phone_number: 'phone_number',
         salary: 'salary',
         location_id: 'location_id'
     }
-    console.log("🚀 ~ file: ListVacancy.jsx ~ line 25 ~ ListVacancy ~ fieldName", (fieldName === (LIST_FIELD_NAME.salary || LIST_FIELD_NAME.location_id)))
     
     const search = createBrowserHistory().location.search; // * текущий параметр
     const ROLE = createBrowserHistory().location.pathname.replace(/\//g, '') || ROLE_CUSTOMER; // * текущий путь
@@ -45,7 +45,7 @@ export default function ListVacancy() {
     const clientToken = parsedSearch.client || 'lccCnXFy9De65m3LWyZFxj6GlbghZfsobuEgPW65wFSpLyftX56A7mYIimSd'; // ! убрать по-умолчанию после теста
     const orderBy = parsedSearch['order[by]'] || 'id';
     const orderWay = parsedSearch['order[way]'] || 'desc';
-    const userId = parsedSearch['user-id'] || '76'; // ! убрать по-умолчанию после теста
+    const userId = parsedSearch['user-id'] || '88'; // ! убрать по-умолчанию после теста
     const AMOUNT_VISIBLE_VACANCY = parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
     const memoizedHeader = useMemo(() => {
         const headers = {
@@ -122,7 +122,14 @@ return headers}, [clientToken]);
     }, reject => console.error(reject))}
 
     // ! getEditVacancy не разобрался как передать параметры
-    const getEditVacancy = (id, params)=> {axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, params).then(resolve => {
+    const getEditVacancy = (id, field, value)=> {axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, {
+        [LIST_FIELD_NAME.name]: fieldName === LIST_FIELD_NAME.name ? valueInput : infoVacancy.name,
+        [LIST_FIELD_NAME.category_id]: fieldName === LIST_FIELD_NAME.category_id ? valueInput : infoVacancy.categories[0].id,
+        [LIST_FIELD_NAME.description]: fieldName === LIST_FIELD_NAME.description ? valueInput : infoVacancy.description,
+        [LIST_FIELD_NAME.phone_number]: fieldName === LIST_FIELD_NAME.phone_number ? valueInput : infoVacancy.phone_number,
+        [LIST_FIELD_NAME.salary]: fieldName === LIST_FIELD_NAME.salary ? valueInput : infoVacancy.salary,
+        [LIST_FIELD_NAME.location_id]: fieldName === LIST_FIELD_NAME.location_id ? valueInput : infoVacancy.locations[0].id
+    }).then(resolve => {
         if(resolve.status === 200){ 
         setTextMenu('Вакансия обновлена! 💾')
         return
@@ -196,7 +203,7 @@ return headers}, [clientToken]);
                     <div className={style.container}>
                         <ul className={style.list}>
                             {!checkItem ?
-                                paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, description }) => {
+                                paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, description }) => {
                                     const dataCountry = location_name.split(' ');
                                     const countryAlt = dataCountry[0];
                                     const country = dataCountry[1];
@@ -209,6 +216,7 @@ return headers}, [clientToken]);
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
                                         <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
+                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4d4.png" alt="📔" />{`Категория: ${category[0].name}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${salary} ${salary_unit_name}`}</p>
                                         <p className={style.text}><span className={style.textInfo}>Детальная инфо по ссылке </span><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/27a1.png" alt="➡️" />:<button type='button' className={style.btnLinkInfo} onClick={() => setCheckItem(id)}>{`/job_${id}`}</button></p>
                                     </li>)
@@ -216,7 +224,7 @@ return headers}, [clientToken]);
                                 )                               
                                 :
 
-                                paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, description }) => {
+                                paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, description }) => {
                                     if (checkItem !== id) {
                                         return false
                                     }
@@ -232,6 +240,7 @@ return headers}, [clientToken]);
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
                                         <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
+                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4d4.png" alt="📔" />{`Категория: ${category[0].name}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${salary} ${salary_unit_name}`}</p>
                                         <p className={style.text}>Детальная информация:</p>
                                         <br />
@@ -317,7 +326,7 @@ return headers}, [clientToken]);
                                </ul>}
                            <div className={style.containerBtnControlMenu}>
                            <button type='button' className={style.buttonLinkGroup} onClick={() => { 
-                        getEditVacancy(infoVacancy?.id, {[fieldName]: valueInput})
+                        getEditVacancy(infoVacancy?.id, fieldName, valueInput)
                         setShowInput(false)
                         setFieldName('')
                         setTextMenu('Что вы хотите изменить? ✏️')
