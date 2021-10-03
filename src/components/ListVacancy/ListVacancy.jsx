@@ -121,7 +121,7 @@ return headers}, [clientToken]);
         console.error('в ответе пришел не статус 200');
     }, reject => console.error(reject))}
 
-    // ! getEditVacancy не разобрался как передать параметры
+    // ! getEditVacancy нет прав на обновление
     const getEditVacancy = (id, field, value)=> {axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, {
         [LIST_FIELD_NAME.name]: fieldName === LIST_FIELD_NAME.name ? valueInput : infoVacancy.name,
         [LIST_FIELD_NAME.category_id]: fieldName === LIST_FIELD_NAME.category_id ? valueInput : infoVacancy.categories[0].id,
@@ -137,7 +137,7 @@ return headers}, [clientToken]);
         console.error('в ответе пришел не статус 200');
     }, reject => console.error(reject))}
 
-    // ! getListCountry не разобрался получить города определенной страны
+    // ! getListCountry не разобрался как получить города определенной страны
     const getListCountry = ()=> {axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/locations?countriesOnly=true`
     ).then(resolve => {
         if(resolve.status === 200){ 
