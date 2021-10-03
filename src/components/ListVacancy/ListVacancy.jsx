@@ -122,7 +122,7 @@ return headers}, [clientToken]);
     }, reject => console.error(reject))}
 
     // ! getEditVacancy нет прав на обновление
-    const getEditVacancy = (id, field, value)=> {axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, {
+    const getEditVacancy = (id)=> {axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, {
         [LIST_FIELD_NAME.name]: fieldName === LIST_FIELD_NAME.name ? valueInput : infoVacancy.name,
         [LIST_FIELD_NAME.category_id]: fieldName === LIST_FIELD_NAME.category_id ? valueInput : infoVacancy.categories[0].id,
         [LIST_FIELD_NAME.description]: fieldName === LIST_FIELD_NAME.description ? valueInput : infoVacancy.description,
@@ -203,7 +203,8 @@ return headers}, [clientToken]);
                     <div className={style.container}>
                         <ul className={style.list}>
                             {!checkItem ?
-                                paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, description }) => {
+                                paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, category_name, description }) => {
+                                    const categoryName = category ? category[0].name : category_name; 
                                     const dataCountry = location_name.split(' ');
                                     const countryAlt = dataCountry[0];
                                     const country = dataCountry[1];
@@ -216,7 +217,7 @@ return headers}, [clientToken]);
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
                                         <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
-                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4d4.png" alt="📔" />{`Категория: ${category[0].name}`}</p>
+                                       <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4d4.png" alt="📔" />{`Категория: ${categoryName}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${salary} ${salary_unit_name}`}</p>
                                         <p className={style.text}><span className={style.textInfo}>Детальная инфо по ссылке </span><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/27a1.png" alt="➡️" />:<button type='button' className={style.btnLinkInfo} onClick={() => setCheckItem(id)}>{`/job_${id}`}</button></p>
                                     </li>)
@@ -224,10 +225,12 @@ return headers}, [clientToken]);
                                 )                               
                                 :
 
-                                paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, description }) => {
+                                paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, category_name, description }) => {
+                                    console.log("🚀 ~ file: ListVacancy.jsx ~ line 229 ~ paginationVacancy.map ~ category", category)
                                     if (checkItem !== id) {
                                         return false
                                     }
+                                    const categoryName = category ? category[0].name : category_name;
                                     const dataCountry = location_name.split(' ');
                                     const countryAlt = dataCountry[0];
                                     const country = dataCountry[1];
@@ -240,7 +243,7 @@ return headers}, [clientToken]);
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
                                         <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
-                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4d4.png" alt="📔" />{`Категория: ${category[0].name}`}</p>
+                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4d4.png" alt="📔" />{`Категория: ${categoryName}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${salary} ${salary_unit_name}`}</p>
                                         <p className={style.text}>Детальная информация:</p>
                                         <br />
@@ -326,7 +329,7 @@ return headers}, [clientToken]);
                                </ul>}
                            <div className={style.containerBtnControlMenu}>
                            <button type='button' className={style.buttonLinkGroup} onClick={() => { 
-                        getEditVacancy(infoVacancy?.id, fieldName, valueInput)
+                        getEditVacancy(infoVacancy?.id)
                         setShowInput(false)
                         setFieldName('')
                         setTextMenu('Что вы хотите изменить? ✏️')
