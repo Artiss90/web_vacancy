@@ -123,14 +123,11 @@ return headers}, [clientToken]);
         console.error('в ответе пришел не статус 200');
     }, reject => console.error(reject))}
     
-    // ! getEditVacancy ошибка "Array to string conversion" для category_id
     const getEditVacancy = (id)=> {
-    console.log("🚀 ~ file: ListVacancy.jsx ~ line 127 ~ getEditVacancy ~ id", infoVacancy.categories)
-        
         axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, {
         "_method": "patch",
         [LIST_FIELD_NAME.name]: fieldName === LIST_FIELD_NAME.name ? valueInput : infoVacancy.name,
-        [LIST_FIELD_NAME.category_id]: infoVacancy.categories,
+        [LIST_FIELD_NAME.category_id]: [infoVacancy.categories[0].id],
         [LIST_FIELD_NAME.description]: fieldName === LIST_FIELD_NAME.description ? valueInput : infoVacancy.description,
         [LIST_FIELD_NAME.phone_number]: fieldName === LIST_FIELD_NAME.phone_number ? valueInput : infoVacancy.phone_number,
         [LIST_FIELD_NAME.salary]: fieldName === LIST_FIELD_NAME.salary ? +valueInput : infoVacancy.salary[0].salary,
