@@ -23,8 +23,9 @@ export default function ListVacancy() {
     const [valueInput, setValueInput] = useState('')
     const [fieldName, setFieldName] = useState('')
     const [listCountry, setListCountry] = useState('')
-    const [countryID, setCountryID] = useState('')
+    const [listCity, setListCity] = useState('')
     const [startPagePagination, setStartPagePagination] = useState(0)
+    console.log("🚀 ~ file: ListVacancy.jsx ~ line 15 ~ ListVacancy ~ infoVacancy", infoVacancy)
     
     const ROLE_CUSTOMER = 'customer';
     const ROLE_EMPLOYER = 'admin';
@@ -42,7 +43,7 @@ export default function ListVacancy() {
     const ROLE = createBrowserHistory().location.pathname.replace(/\//g, '') || ROLE_CUSTOMER; // * текущий путь
 
     const parsedSearch = queryString.parse(search); // * массив параметров
-    const clientToken = parsedSearch.client || 'lccCnXFy9De65m3LWyZFxj6GlbghZfsobuEgPW65wFSpLyftX56A7mYIimSd'; // ! убрать по-умолчанию после теста
+    const clientToken = parsedSearch.client || 'OqYL567T6iGztlLKwiaAjOp7WPSzlmY8LEeTJT2vBnTkbl1OAyh7sppHRfZX'; // ! убрать по-умолчанию после теста
     const orderBy = parsedSearch['order[by]'] || 'id';
     const orderWay = parsedSearch['order[way]'] || 'desc';
     const userId = parsedSearch['user-id'] || '88'; // ! убрать по-умолчанию после теста
@@ -75,7 +76,7 @@ return headers}, [clientToken]);
             if(ROLE === ROLE_CUSTOMER){ getDataVacancyCustomer()}
             if(ROLE === ROLE_EMPLOYER){ getDataVacancyEmployer()}
             
-    }, [ROLE, clientToken, memoizedHeader, orderBy, orderWay, userId])
+    }, [ROLE, clientToken, memoizedHeader, orderBy, orderWay, userId, valueInput])
 
     useEffect(() => {
         setLoading(true)
@@ -120,28 +121,46 @@ return headers}, [clientToken]);
         }
         console.error('в ответе пришел не статус 200');
     }, reject => console.error(reject))}
-
-    // ! getEditVacancy нет прав на обновление
-    const getEditVacancy = (id)=> {axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, {
+    
+    // ! getEditVacancy ошибка "Array to string conversion" для category_id
+    const getEditVacancy = (id)=> {
+    console.log("🚀 ~ file: ListVacancy.jsx ~ line 127 ~ getEditVacancy ~ id", infoVacancy.categories)
+        
+        axios.patch(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers/${id}/update`, {
+        "_method": "patch",
         [LIST_FIELD_NAME.name]: fieldName === LIST_FIELD_NAME.name ? valueInput : infoVacancy.name,
-        [LIST_FIELD_NAME.category_id]: fieldName === LIST_FIELD_NAME.category_id ? valueInput : infoVacancy.categories[0].id,
+        [LIST_FIELD_NAME.category_id]: infoVacancy.categories,
         [LIST_FIELD_NAME.description]: fieldName === LIST_FIELD_NAME.description ? valueInput : infoVacancy.description,
         [LIST_FIELD_NAME.phone_number]: fieldName === LIST_FIELD_NAME.phone_number ? valueInput : infoVacancy.phone_number,
-        [LIST_FIELD_NAME.salary]: fieldName === LIST_FIELD_NAME.salary ? valueInput : infoVacancy.salary,
+        [LIST_FIELD_NAME.salary]: fieldName === LIST_FIELD_NAME.salary ? +valueInput : infoVacancy.salary[0].salary,
         [LIST_FIELD_NAME.location_id]: fieldName === LIST_FIELD_NAME.location_id ? valueInput : infoVacancy.locations[0].id
     }).then(resolve => {
         if(resolve.status === 200){ 
         setTextMenu('Вакансия обновлена! 💾')
+        setValueInput('')
         return
         }
         console.error('в ответе пришел не статус 200');
-    }, reject => console.error(reject))}
+    }, reject => {
+        setValueInput('')
+        console.error(reject)})}
 
     // ! getListCountry не разобрался как получить города определенной страны
     const getListCountry = ()=> {axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/locations?countriesOnly=true`
     ).then(resolve => {
         if(resolve.status === 200){ 
-        setListCountry(resolve.data.data.locations)
+            setListCountry(resolve.data.data.locations)
+        return
+        }
+        console.error('в ответе пришел не статус 200');
+    }, reject => console.error(reject))}
+
+    const getListCityByCountry = (countryId)=> {axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/locations?parent[]=${countryId}`
+    ).then(resolve => {
+        if(resolve.status === 200){ 
+        setListCity(resolve.data.data.locations[50].children)
+        setTextMenu('Укажите город, в котором будет предоставлена работа')
+        setListCountry('')
         return
         }
         console.error('в ответе пришел не статус 200');
@@ -180,6 +199,7 @@ return headers}, [clientToken]);
                 setTextMenu('')
                 setListApply('')
                 setValueInput('')
+                setListCity('')
                 setShowViewDeleteVacancy(false)
                 setTimeout(() => {
                     setLoading(false)
@@ -226,7 +246,6 @@ return headers}, [clientToken]);
                                 :
 
                                 paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, category_name, description }) => {
-                                    console.log("🚀 ~ file: ListVacancy.jsx ~ line 229 ~ paginationVacancy.map ~ category", category)
                                     if (checkItem !== id) {
                                         return false
                                     }
@@ -242,18 +261,26 @@ return headers}, [clientToken]);
                                     return (<li className={sn('item')} key={id}>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
                                         <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
-                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
+                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{fieldName === LIST_FIELD_NAME.name 
+                                        ? `Вакансия: ${valueInput}` 
+                                        : `Вакансия: ${name}`}</p>
                                          <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4d4.png" alt="📔" />{`Категория: ${categoryName}`}</p>
-                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${salary} ${salary_unit_name}`}</p>
+                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{fieldName === LIST_FIELD_NAME.salary 
+                                        ? `Зарплата: ${valueInput} ${salary_unit_name}` 
+                                        : `Зарплата: ${salary} ${salary_unit_name}`}</p>
                                         <p className={style.text}>Детальная информация:</p>
                                         <br />
                                         {checkItem && <div>
                                             <ul>
-                                                {infoVacancy.description && infoVacancy.description.split('\\n').join('&перенос_строки&').split('\n').join('&перенос_строки&').split('<br/>').join('&перенос_строки&').split('&перенос_строки&').map((listItem, i) => <li key={i} className={style.info}>{listItem}</li>)}
+                                                <p className={style.textInfo}>{fieldName === LIST_FIELD_NAME.description 
+                                                ? valueInput 
+                                                : infoVacancy.description}</p>
                                                 <br />
                                                 <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b2.png" alt="💲" />Работодатель: <a href={`https://${infoVacancy.user_site}`} title={`https://${infoVacancy.user_site}`} className={style.btnLinkWork}>{infoVacancy.user_company}</a></p>
                                                 <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f3e2.png" alt="🏢" />{infoVacancy.user_address}</p>
-                                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4f1.png" alt="📱" /><a href={`tel:${infoVacancy.user_phone}`} className={style.btnLinkWork}>{infoVacancy.user_phone}</a></p>
+                                                <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4f1.png" alt="📱" /><a href={`tel:${infoVacancy.phone_number}`} className={style.btnLinkWork}>{fieldName === LIST_FIELD_NAME.phone_number 
+                                                ? valueInput 
+                                                : infoVacancy.phone_number}</a></p>
                                             </ul>
                                         </div>}
                                     </li>)
@@ -319,20 +346,24 @@ return headers}, [clientToken]);
                        {/* информирующее сообщение для пользователя*/}
                        <p className={style.textMenu}>{textMenu}</p>
                        {showInput && <div>
-                           {/* для редакции большенства полей*/}
+                           {/* для редакции большинства полей*/}
                            {((fieldName !== LIST_FIELD_NAME.description ) && (fieldName !== LIST_FIELD_NAME.location_id )) && <input type={(fieldName === LIST_FIELD_NAME.salary) ? 'number' : 'text'} onChange={changeValueInput} value={valueInput} className={style.field}/>}
                             {/* для редакции поля 'описания' мультилинейное поле */}
                            {fieldName === LIST_FIELD_NAME.description && <textarea onChange={changeValueInput} value={valueInput} className={style.field}/>}
                            {fieldName === LIST_FIELD_NAME.location_id && <ul className={style.containerBtnControlMenu}>
-                            {listCountry && listCountry.map(item => <li key={item.id}><button type='button' className={style.buttonLinkGroup} onClick={() => setCountryID(item.id)
+                            {listCountry && listCountry.map(item => <li key={item.id}><button type='button' className={style.buttonLinkGroup} onClick={() => getListCityByCountry(item.id)
+                           }>{item.name}</button></li>)}
+                            {listCity && listCity.map(item => <li key={item.id}><button type='button' className={style.buttonLinkGroup} onClick={() => {
+                                setTextMenu(`Вы выбрали город ${item.name}. Нажмите Сохранить💾 чтоб подтвердить свой выбор`)
+                                setValueInput(item.id)}
                            }>{item.name}</button></li>)}
                                </ul>}
                            <div className={style.containerBtnControlMenu}>
                            <button type='button' className={style.buttonLinkGroup} onClick={() => { 
+                        setTextMenu('')
                         getEditVacancy(infoVacancy?.id)
                         setShowInput(false)
                         setFieldName('')
-                        setTextMenu('Что вы хотите изменить? ✏️')
                            }}>Сохранить 💾</button>
                            <button type='button' className={style.buttonLinkGroup} onClick={() => { 
                         setValueInput('')
@@ -360,7 +391,7 @@ return headers}, [clientToken]);
                         setGetEdit(true)
                         setShowInput(true)
                         setFieldName(LIST_FIELD_NAME.salary)
-                        setTextMenu('Укажите новое значение для параметра 💶 Зарплата')
+                        setTextMenu('Укажите новое значение для параметра 💶 Зарплата (только число)')
                            }}>💶 Зарплата</button>
                        <button type='button' className={style.buttonLinkGroup} onClick={() => { 
                         setGetEdit(true)
