@@ -17,6 +17,7 @@ export default function ListVacancy() {
     const [loading, setLoading] = useState(false)
     const [getEdit, setGetEdit] = useState(false)
     const [showInput, setShowInput] = useState(false)
+    const [refresh, setRefresh] = useState(false)
     const [showViewDeleteVacancy, setShowViewDeleteVacancy] = useState(false)
     const [textMenu, setTextMenu] = useState('')
     const [listApply, setListApply] = useState('')
@@ -76,7 +77,7 @@ return headers}, [clientToken]);
             if(ROLE === ROLE_CUSTOMER){ getDataVacancyCustomer()}
             if(ROLE === ROLE_EMPLOYER){ getDataVacancyEmployer()}
             
-    }, [ROLE, clientToken, memoizedHeader, orderBy, orderWay, userId, valueInput])
+    }, [ROLE, clientToken, memoizedHeader, orderBy, orderWay, userId, refresh])
 
     useEffect(() => {
         setLoading(true)
@@ -138,11 +139,13 @@ return headers}, [clientToken]);
         if(resolve.status === 200){ 
         setTextMenu('Вакансия обновлена! 💾')
         setValueInput('')
+        setRefresh(!refresh)
         return
         }
         console.error('в ответе пришел не статус 200');
     }, reject => {
         setValueInput('')
+        setRefresh(!refresh)
         console.error(reject)})}
 
     // ! getListCountry не разобрался как получить города определенной страны
@@ -364,6 +367,7 @@ return headers}, [clientToken]);
                         getEditVacancy(infoVacancy?.id)
                         setShowInput(false)
                         setFieldName('')
+                        setValueInput('')
                            }}>Сохранить 💾</button>
                            <button type='button' className={style.buttonLinkGroup} onClick={() => { 
                         setValueInput('')
@@ -408,6 +412,7 @@ return headers}, [clientToken]);
                            }}>🌐 Геолокация</button>
                        <button type='button' className={style.buttonLinkGroup} onClick={() => { 
                         setGetEdit(false)
+                        setValueInput('')
                         setTextMenu('')
                            }}>⬅️ Назад</button>
                        </div>}
