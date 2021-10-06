@@ -10,12 +10,16 @@ padding: .3125rem .5rem .375rem;
 background: rgb(255,255,255);
 font-size:  1rem;
 border-radius: 0.75rem;
-max-height: 65vh; // 100vh - 35vh (button)
+max-height: 64vh; // 100vh - 36vh (button)
 overflow: auto;
+@media screen and (max-width: 1023px) {
+    max-height: calc(64vh - 10vh); // 100vh - 36vh (button) - 10vh(margin-top)
+    margin-top: 10vh;
+}
 };
 .mainContainerBlockButton{
     display: block;
-    max-height: 35vh; // 100vh - 65vh(vacancy data)
+    max-height: 36vh; // 100vh - 64vh(vacancy data)
     overflow: auto;
 }
 

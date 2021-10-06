@@ -1,7 +1,12 @@
-.container {
+:root {--app-height: 100vh}
+
+.containerApp {
   display: flex;
   align-items: flex-end;
-  min-height: 100vh;
+  /* min-height: 100vh; */
+  min-height: var(--app-height);
+  max-height: var(--app-height);
+  overflow: auto;
   text-align: center;
   background-image: url(https://web.telegram.org/z/chat-bg.f607e788298d8a7de37a..jpg);
   background-position: center;
