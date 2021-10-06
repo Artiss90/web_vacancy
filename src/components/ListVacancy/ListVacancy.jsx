@@ -351,9 +351,9 @@ return headers}, [clientToken]);
                             {/* для редакции поля 'описания' мультилинейное поле */}
                            {fieldName === LIST_FIELD_NAME.description && <textarea onChange={changeValueInput} value={valueInput} className={style.field}/>}
                            {fieldName === LIST_FIELD_NAME.location_id && <ul className={style.containerBtnControlMenu}>
-                            {listCountry && listCountry.map(item => <li key={item.id}><button type='button' className={style.buttonLinkGroup} onClick={() => getListCityByCountry(item.id)
+                            {listCountry && listCountry.map(item => <li key={item.id} className={style.locationItem}><button type='button' className={style.buttonLinkExpanded} onClick={() => getListCityByCountry(item.id)
                            }>{item.name}</button></li>)}
-                            {listCity && listCity.map(item => <li key={item.id}><button type='button' className={style.buttonLinkGroup} onClick={() => {
+                            {listCity && listCity.map(item => <li key={item.id} className={style.locationItem}><button type='button' className={style.buttonLinkExpanded} onClick={() => {
                                 setTextMenu(`Вы выбрали город ${item.name}. Нажмите Сохранить💾 чтоб подтвердить свой выбор`)
                                 setValueInput(item.id)}
                            }>{item.name}</button></li>)}
