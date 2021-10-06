@@ -208,7 +208,7 @@ return headers}, [clientToken]);
     return (
         <div>
             {paginationVacancy &&
-                <div>
+                <div className={style.mainContainerVacancy}>
                     {loading ?
                     <div className={style.containerLoader}>
                         <Loader
@@ -220,7 +220,7 @@ return headers}, [clientToken]);
                       />
                     </div> 
                    :
-                    <div className={style.container}>
+                    <div className={style.containerVacancyData}>
                         <ul className={style.list}>
                             {!checkItem ?
                                 paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, category_name, description }) => {
@@ -290,6 +290,9 @@ return headers}, [clientToken]);
                         </ul>
                     </div>
                     }
+
+                    {/* // * главный блок содержащий все кнопки */}
+                    <div className={style.mainContainerBlockButton}>
                     {/* кнопки управления для искателя работы */}
                    {infoVacancy && ROLE === ROLE_CUSTOMER && <button type='button' className={style.buttonLinkExpanded} onClick={() => { applyForVacancy(infoVacancy?.id) }}>{successApplyForVacancy ? "✅ Отправлено" : "💬 Откликнутся"}</button>}
                      {/* кнопки управления для работодателя не в режиме редактирования вакансии*/}
@@ -416,14 +419,15 @@ return headers}, [clientToken]);
                        </div>}
                    </div>}
 
-                    {!checkItem ? <div className={style.containerBtnControl}>
+                    {!checkItem && <div className={style.containerBtnControl}>
                         {startPagePagination !== 0 && <button type='button' className={sn({ 'buttonLinkMargin': !endList }, { 'buttonLink': endList })} onClick={() => goPreviousPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Назад</button>}
                         {/*отображаем если не конец списка и если длина списка больше количества вакансий на 1 странице*/}
                         {!endList && (listVacancy.length > AMOUNT_VISIBLE_VACANCY)&& <button type='button' className={style.buttonLink} onClick={() => goNextPage()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/25b6.png" alt="▶️" />Далее</button>}
-                    </div>
-                        :
-                        <button type='button' className={style.buttonLinkExpanded} onClick={() => goBackList()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/21a9.png" alt="↩️" />Назад к списку</button>}
+                    </div>}
+                        
+                        {checkItem && <button type='button' className={style.buttonLinkExpanded} onClick={() => goBackList()}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/21a9.png" alt="↩️" />Назад к списку</button>}
                     {/* <a className={style.buttonLink} href='./'><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/2b05.png" alt="⬅️" />Меню</a> */}
+                    </div>
                 </div>
                 }
         </div >

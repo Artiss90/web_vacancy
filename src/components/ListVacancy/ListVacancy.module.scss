@@ -1,11 +1,24 @@
 @import '../../utils/utils.scss';
-
-.container {
+.mainContainerVacancy{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+}
+.containerVacancyData {
 padding: .3125rem .5rem .375rem;
 background: rgb(255,255,255);
-font-size: var(16px, 1rem);
+font-size:  1rem;
 border-radius: 0.75rem;
+max-height: 50vh;
+overflow: auto;
 };
+.mainContainerBlockButton{
+    display: block;
+    max-height: 50vh;
+    overflow: auto;
+}
+
 .list{position: relative;}
 .item{
 margin-bottom: 15px;
