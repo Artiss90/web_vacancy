@@ -239,7 +239,7 @@ return headers}, [clientToken]);
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
                                        <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4d4.png" alt="📔" />{`Категория: ${categoryName}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f4b6.png" alt="💶" />{`Зарплата: ${salary} EUR`}</p>
-                                        <p className={style.text}><span className={style.textInfo}>Детальная инфо по ссылке </span><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/27a1.png" alt="➡️" />:<button type='button' className={style.btnLinkInfo} onClick={() => setCheckItem(id)}>{`/job_${id}`}</button></p>
+                                        <p className={style.text}><span className={style.textInfo}>Детальная инфо по ссылке</span><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/27a1.png" alt="➡️" />:<button type='button' className={style.btnLinkInfo} onClick={() => setCheckItem(id)}>{`/job_${id}`}</button></p>
                                     </li>)
                                 }
                                 )                               
