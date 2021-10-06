@@ -48,7 +48,7 @@ export default function ListVacancy() {
     const orderBy = parsedSearch['order[by]'] || 'id';
     const orderWay = parsedSearch['order[way]'] || 'desc';
     const userId = parsedSearch['user-id'] || '88'; // ! убрать по-умолчанию после теста
-    const AMOUNT_VISIBLE_VACANCY = parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
+    const AMOUNT_VISIBLE_VACANCY = +parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
     const memoizedHeader = useMemo(() => {
         const headers = {
         'X-Requested-With': 'XMLHttpRequest',
@@ -309,6 +309,7 @@ return headers}, [clientToken]);
         </li>)}
         </ul>
         </div>}  
+                    {/* блок кнопок подтверждения */}
         {showViewDeleteVacancy && <div className={style.containerBtnControlMenu}>
             <button type='button' className={style.buttonLinkGroup} onClick={() => { 
                         deleteVacancy(infoVacancy?.id)
