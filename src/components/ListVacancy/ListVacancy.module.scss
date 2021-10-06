@@ -10,12 +10,12 @@ padding: .3125rem .5rem .375rem;
 background: rgb(255,255,255);
 font-size:  1rem;
 border-radius: 0.75rem;
-max-height: 50vh;
+max-height: 65vh; // 100vh - 35vh (button)
 overflow: auto;
 };
 .mainContainerBlockButton{
     display: block;
-    max-height: 50vh;
+    max-height: 35vh; // 100vh - 65vh(vacancy data)
     overflow: auto;
 }
 
