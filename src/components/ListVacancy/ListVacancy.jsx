@@ -130,7 +130,9 @@ return headers}, [clientToken]);
         [LIST_FIELD_NAME.category_id]: [infoVacancy.categories[0].id],
         [LIST_FIELD_NAME.description]: fieldName === LIST_FIELD_NAME.description ? valueInput : infoVacancy.description,
         [LIST_FIELD_NAME.phone_number]: fieldName === LIST_FIELD_NAME.phone_number ? valueInput : infoVacancy.phone_number,
-        [LIST_FIELD_NAME.salary]: fieldName === LIST_FIELD_NAME.salary ? +valueInput : infoVacancy.salary[0].salary,
+        [LIST_FIELD_NAME.salary]: fieldName === LIST_FIELD_NAME.salary ? +valueInput :
+        //  infoVacancy.salary[0].salary,
+        0,
         [LIST_FIELD_NAME.location_id]: fieldName === LIST_FIELD_NAME.location_id ? valueInput : infoVacancy.locations[0].id
     }).then(resolve => {
         if(resolve.status === 200){ 
