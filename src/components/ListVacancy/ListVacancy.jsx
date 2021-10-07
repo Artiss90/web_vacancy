@@ -222,7 +222,7 @@ return headers}, [clientToken]);
                       />
                     </div> 
                    :
-                    <div className={style.containerVacancyData}>
+                    <div className={sn('containerVacancyData', {containerVacancyDataForCustomer: (!checkItem || ROLE === ROLE_CUSTOMER)})}>
                         <ul className={style.list}>
                             {!checkItem ?
                                 paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, category_name, description }) => {

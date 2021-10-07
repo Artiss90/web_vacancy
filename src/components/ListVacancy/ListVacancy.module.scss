@@ -17,6 +17,13 @@ overflow: auto;
     margin-top: 10vh;
 }
 };
+.containerVacancyDataForCustomer {
+    max-height: 85vh;
+@media screen and (max-width: 1023px) {
+        max-height: calc(85vh - 10vh); // 10vh(margin-top)
+        margin-top: 10vh;
+    }
+}
 .mainContainerBlockButton{
     display: block;
     max-height: 36vh; // 100vh - 64vh(vacancy data)
