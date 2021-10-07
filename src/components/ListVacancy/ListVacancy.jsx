@@ -354,6 +354,7 @@ return headers}, [clientToken]);
                            {((fieldName !== LIST_FIELD_NAME.description ) && (fieldName !== LIST_FIELD_NAME.location_id )) && <input type={(fieldName === LIST_FIELD_NAME.salary) ? 'number' : 'text'} onChange={changeValueInput} value={valueInput} className={style.field}/>}
                             {/* для редакции поля 'описания' мультилинейное поле */}
                            {fieldName === LIST_FIELD_NAME.description && <textarea onChange={changeValueInput} value={valueInput} className={style.field}/>}
+                               {/* кнопки выбора локации */}
                            {fieldName === LIST_FIELD_NAME.location_id && <ul className={style.containerBtnControlMenu}>
                             {listCountry && listCountry.map(item => <li key={item.id} className={style.locationItem}><button type='button' className={style.buttonLinkExpanded} onClick={() => getListCityByCountry(item.id)
                            }>{item.name}</button></li>)}
