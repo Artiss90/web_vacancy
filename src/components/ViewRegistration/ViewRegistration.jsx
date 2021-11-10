@@ -8,14 +8,14 @@ import axios from 'axios';
 const sn = styleNames(style);
 
 const ROLE = {
-    employer: '3',
-    applicant: '4'
+    employer: 3,
+    applicant: 4
 }
 
 export default function ViewRegistration  () {
     const search = createBrowserHistory().location.search; // * текущий параметр строки браузера
     const parsedSearch = queryString.parse(search); // * массив параметров строки браузера
-    const role = parsedSearch['role'];
+    const role = Number(parsedSearch['role']);
     const phone = parsedSearch['phone'] || '';
     
     //* хедеры по-умолчанию
@@ -224,7 +224,7 @@ const handleSubmitRegister = (e) => {
             Сохранить
           </button>
       </form>}
-      {role === ROLE.employer && <form className={style.form} onSubmit={''}>
+      {role === ROLE.employer && <form className={style.form} onSubmit={handleSubmitRegister}>
         <label className={style.formLabel}>
             Имя
           <input
