@@ -1,11 +1,8 @@
 import style from './ViewRegistration.module.scss';
-import { styleNames } from 'utils/style-names';
 import { useEffect, useMemo, useState } from 'react';
 import { createBrowserHistory } from 'history'
 import queryString from 'query-string'
 import axios from 'axios';
-
-const sn = styleNames(style);
 
 const ROLE = {
     employer: 3,
@@ -36,8 +33,8 @@ export default function ViewRegistration  () {
     const [filteredVacancy, setFilteredVacancy] = useState([]);
     const [valueCategoryJob, setValueCategoryJob] = useState([]);
     const [valueLocation, setValueLocation] = useState([]);
-    const [selectedCountry, setSelectedCountry] = useState([]);
-    const [selectedVacancy, setSelectedVacancy] = useState([]);
+    const [selectedCountryId, setSelectedCountryId] = useState([]);
+    const [selectedVacancyId, setSelectedVacancyId] = useState([]);
 
 //* отфильтровывание выбранных стран
 useEffect(() => {
@@ -47,9 +44,9 @@ useEffect(() => {
 }, [locations]);
 useEffect(() => {
     if(locations.length>0){
-        setFilteredLocations(locations.filter(item=> !selectedCountry.includes(item.name)))
+        setFilteredLocations(locations.filter(item=> !selectedCountryId.includes(item.name)))
     }
-}, [locations, selectedCountry])
+}, [locations, selectedCountryId])
 
 //* отфильтровывание выбранных вакансий
 useEffect(() => {
@@ -59,9 +56,9 @@ useEffect(() => {
 }, [categoriesJobs]);
 useEffect(() => {
     if(categoriesJobs.length>0){
-        setFilteredVacancy(categoriesJobs.filter(item=> !selectedVacancy.includes(item.name)))
+        setFilteredVacancy(categoriesJobs.filter(item=> !selectedVacancyId.includes(item.name)))
     }
-}, [categoriesJobs, selectedVacancy])
+}, [categoriesJobs, selectedVacancyId])
 
 //* запрос на получение списка параметров
 useEffect(() => {
@@ -100,7 +97,7 @@ const handleChangeCategoryJob = (e) => {
     //* нахождение вакансии по id 
     const getNameVacancy = (idVacancy) => {
         const fondedVacancy = categoriesJobs.find( item=> item.id === idVacancy)
-        setSelectedVacancy([...selectedVacancy, fondedVacancy?.name])
+        setSelectedVacancyId([...selectedVacancyId, fondedVacancy?.name])
        }
     
     setValueCategoryJob([...valueCategoryJob, Number(e.target.value)]);
@@ -111,7 +108,7 @@ const handleChangeLocation = (e) => {
     //* нахождение страны по id 
     const getNameCountry = (idCountry) => {
     const fondedCountry = locations.find( item=> item.id === idCountry)
-    setSelectedCountry([...selectedCountry, fondedCountry?.name])
+    setSelectedCountryId([...selectedCountryId, fondedCountry?.name])
    }
 
     setValueLocation([...valueLocation,Number(e.target.value)]);
@@ -157,10 +154,12 @@ const handleSubmitRegister = (e) => {
 }
 
     return (<div className={style.mainContainer}>
+        <h2 className={style.headTitle}>Форма регистрации</h2>
         {role === ROLE.applicant && <form className={style.form} onSubmit={handleSubmitRegister}>
-        <label className={style.formLabel}>
+        <label className={style.label}>
             Имя
           <input
+            className={style.input}
             name="name"
             required
             type="text"
@@ -169,10 +168,11 @@ const handleSubmitRegister = (e) => {
           />
         </label>
 
-        <label className={style.formLabel}>
+        <label className={style.label}>
         Категории работы
-        <p>Выбранные категории: {selectedVacancy.join(', ')}</p>
+        <p>Выбранные категории: {selectedVacancyId.join(', ')}</p>
           <select
+            className={style.input}
             value={valueCategoryJob}
             onChange={handleChangeCategoryJob}
           >
@@ -187,10 +187,11 @@ const handleSubmitRegister = (e) => {
           </select>
         </label>
 
-        <label className={style.formLabel}>
+        <label className={style.label}>
         Локация 
-        <p>Выбранные страны: {selectedCountry.join(', ')}</p>
+        <p>Выбранные страны: {selectedCountryId.join(', ')}</p>
           <select
+            className={style.input}
             value={valueLocation}
             onChange={handleChangeLocation}
           >
@@ -205,9 +206,10 @@ const handleSubmitRegister = (e) => {
           </select>
         </label>
 
-        <label className={style.formLabel}>
+        <label className={style.label}>
         Размер ЗП {sliderValueSalary}
         <input
+          className={style.inputSlider}
           type="range"
           value={sliderValueSalary}
           min="1000"
@@ -218,14 +220,15 @@ const handleSubmitRegister = (e) => {
         />
         </label>
 
-          <button type="submit" >
+          <button type="submit" className={style.btnSubmit}>
             Сохранить
           </button>
       </form>}
       {role === ROLE.employer && <form className={style.form} onSubmit={handleSubmitRegister}>
-        <label className={style.formLabel}>
+        <label className={style.label}>
             Имя
           <input
+            className={style.input}
             name="name"
             required
             type="text"
@@ -234,9 +237,10 @@ const handleSubmitRegister = (e) => {
           />
         </label>
 
-        <label className={style.formLabel}>
+        <label className={style.label}>
             Название организации
           <input
+            className={style.input}
             name="company"
             required
             type="text"
@@ -245,7 +249,7 @@ const handleSubmitRegister = (e) => {
           />
         </label>
 
-          <button type="submit" >
+          <button type="submit" className={style.btnSubmit}>
             Сохранить
           </button>
       </form>}

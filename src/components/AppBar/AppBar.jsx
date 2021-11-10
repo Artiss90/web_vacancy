@@ -7,7 +7,7 @@ export default function AppBar() {
     return (<div className={style.container}>
         <Switch>
               <Route exact path="/" component={ListVacancy} />
-              <Route exact path="/registration" component={ViewRegistration} />  
+              <Route exact path="/registration" component={ViewRegistration} />
         </Switch>
 
     </div>)

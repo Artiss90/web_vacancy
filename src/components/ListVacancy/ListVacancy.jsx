@@ -26,7 +26,6 @@ export default function ListVacancy() {
     const [listCountry, setListCountry] = useState('')
     const [listCity, setListCity] = useState('')
     const [startPagePagination, setStartPagePagination] = useState(0)
-    console.log("🚀 ~ file: ListVacancy.jsx ~ line 15 ~ ListVacancy ~ infoVacancy", infoVacancy)
     
     const ROLE_CUSTOMER = 'customer';
     const ROLE_EMPLOYER = 'admin';
@@ -47,7 +46,7 @@ export default function ListVacancy() {
     const clientToken = parsedSearch.client
     const orderBy = parsedSearch['order[by]'] || 'id';
     const orderWay = parsedSearch['order[way]'] || 'desc';
-    const userId = parsedSearch['user-id']
+    const userId = parsedSearch['user-id'];
     const AMOUNT_VISIBLE_VACANCY = +parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
     const memoizedHeader = useMemo(() => {
         const headers = {
