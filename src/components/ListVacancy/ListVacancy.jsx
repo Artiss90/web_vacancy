@@ -44,10 +44,10 @@ export default function ListVacancy() {
     const ROLE = createBrowserHistory().location.pathname.replace(/\//g, '') || ROLE_CUSTOMER; // * текущий путь
 
     const parsedSearch = queryString.parse(search); // * массив параметров
-    const clientToken = parsedSearch.client || 'OqYL567T6iGztlLKwiaAjOp7WPSzlmY8LEeTJT2vBnTkbl1OAyh7sppHRfZX'; // ! убрать по-умолчанию после теста
+    const clientToken = parsedSearch.client
     const orderBy = parsedSearch['order[by]'] || 'id';
     const orderWay = parsedSearch['order[way]'] || 'desc';
-    const userId = parsedSearch['user-id'] || '88'; // ! убрать по-умолчанию после теста
+    const userId = parsedSearch['user-id']
     const AMOUNT_VISIBLE_VACANCY = +parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
     const memoizedHeader = useMemo(() => {
         const headers = {
