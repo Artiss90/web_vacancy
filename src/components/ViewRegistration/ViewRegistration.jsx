@@ -25,7 +25,7 @@ export default function ViewRegistration  () {
         }
     return headers}, []);
     
-    axios.defaults.headers = memoizedHeader // хедеры по умолчанию для всех запросов
+    axios.defaults.headers = memoizedHeader //* хедеры по умолчанию для всех запросов
 
     const [sliderValueSalary, setSliderValueSalary] = useState(1500);
     const [valueName, setValueName] = useState('')
@@ -122,15 +122,6 @@ const handleChangeLocation = (e) => {
 //* отправка формы  
 const handleSubmitRegister = (e) => {
     e.preventDefault();
-    //     let body = {
-    //         user_type_id: role,
-    //         name: valueName,
-    //         company_name: valueCompanyName,
-    //         location_id: valueLocation,
-    //         category_id: valueCategoryJob,
-    //         phone_number: phone,
-    //         salary: sliderValueSalary
-    //   }
     const body = {}
     body.user_type_id = role;
     if(phone){
@@ -142,19 +133,26 @@ const handleSubmitRegister = (e) => {
             body.company_name = valueCompanyName
         }
         body.name = valueName
-        console.log(body);
-        //! POST
-        return
+        axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/register`, body).then(resolve => {
+    if(resolve.status === 200){ 
+    return
     }
+    console.error('в ответе пришел не статус 200');
+    }, reject => console.error(reject))
+    }
+
     //* register for applicant
     if(role === ROLE.applicant){
         body.name = valueName
         body.location_id = valueLocation
         body.category_id = valueCategoryJob
         body.salary = sliderValueSalary
-        console.log(body);
-        //!POST
-        return
+        axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/register`, body).then(resolve => {
+    if(resolve.status === 200){ 
+    return
+    }
+    console.error('в ответе пришел не статус 200');
+    }, reject => console.error(reject))
 }
 }
 
