@@ -3,7 +3,6 @@
 .containerApp {
   display: flex;
   align-items: flex-end;
-  /* min-height: 100vh; */
   min-height: var(--app-height);
   max-height: var(--app-height);
   overflow: auto;
@@ -12,4 +11,9 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+}
+@media screen and (min-width: 1024px) {
+  .containerApp {
+  min-height: 100vh;
+  }
 }
