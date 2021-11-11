@@ -2,6 +2,9 @@ import style from './ViewRegistration.module.scss';
 import { useEffect, useMemo, useState } from 'react';
 import { createBrowserHistory } from 'history'
 import queryString from 'query-string'
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Autocomplete from '@mui/material/Autocomplete';
 import axios from 'axios';
 
 const ROLE = {
@@ -29,36 +32,10 @@ export default function ViewRegistration  () {
     const [valueCompanyName, setValueCompanyName] = useState('')
     const [categoriesJobs, setCategoriesJobs] = useState([]);
     const [locations, setLocations] = useState([]);
-    const [filteredLocations, setFilteredLocations] = useState([]);
-    const [filteredVacancy, setFilteredVacancy] = useState([]);
     const [valueCategoryJob, setValueCategoryJob] = useState([]);
     const [valueLocation, setValueLocation] = useState([]);
     const [selectedCountryId, setSelectedCountryId] = useState([]);
     const [selectedVacancyId, setSelectedVacancyId] = useState([]);
-
-//* отфильтровывание выбранных стран
-useEffect(() => {
-   if(locations.length>0){
-    setFilteredLocations(locations)
-   }
-}, [locations]);
-useEffect(() => {
-    if(locations.length>0){
-        setFilteredLocations(locations.filter(item=> !selectedCountryId.includes(item.name)))
-    }
-}, [locations, selectedCountryId])
-
-//* отфильтровывание выбранных вакансий
-useEffect(() => {
-   if(categoriesJobs.length>0){
-    setFilteredVacancy(categoriesJobs)
-   }
-}, [categoriesJobs]);
-useEffect(() => {
-    if(categoriesJobs.length>0){
-        setFilteredVacancy(categoriesJobs.filter(item=> !selectedVacancyId.includes(item.name)))
-    }
-}, [categoriesJobs, selectedVacancyId])
 
 //* запрос на получение списка параметров
 useEffect(() => {
@@ -93,29 +70,21 @@ const changeSliderValueSalary = (e) => {
     setSliderValueSalary(e.target.value)
 }
 //* изменение категории роботы
-const handleChangeCategoryJob = (e) => {
+const handleChangeCategoryJob = (e, newValue) => {
     //* нахождение вакансии по id 
-    const getNameVacancy = (idVacancy) => {
-        const fondedVacancy = categoriesJobs.find( item=> item.id === idVacancy)
-        setSelectedVacancyId([...selectedVacancyId, fondedVacancy?.name])
-       }
+    const getVacanciesId = newValue.map( item=> Number(item.id))
+    setSelectedVacancyId(getVacanciesId) 
     
-    setValueCategoryJob([...valueCategoryJob, Number(e.target.value)]);
-    getNameVacancy(Number(e.target.value));
+    setValueCategoryJob(newValue);
   };
 //* изменение локации
-const handleChangeLocation = (e) => {
+const handleChangeLocation = (e, newValue) => {
     //* нахождение страны по id 
-    const getNameCountry = (idCountry) => {
-    const fondedCountry = locations.find( item=> item.id === idCountry)
-    setSelectedCountryId([...selectedCountryId, fondedCountry?.name])
-   }
-
-    setValueLocation([...valueLocation,Number(e.target.value)]);
-    getNameCountry(Number(e.target.value));
-
+    const getCountriesId = newValue.map( item=> Number(item.id))
+    setSelectedCountryId(getCountriesId)
+   
+    setValueLocation(newValue);
   };
-
 //* отправка формы  
 const handleSubmitRegister = (e) => {
     e.preventDefault();
@@ -141,8 +110,8 @@ const handleSubmitRegister = (e) => {
     //* register for applicant
     if(role === ROLE.applicant){
         body.name = valueName
-        body.location_id = valueLocation
-        body.category_id = valueCategoryJob
+        body.location_id = selectedCountryId
+        body.category_id = selectedVacancyId
         body.salary = sliderValueSalary
         axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/register`, body).then(resolve => {
     if(resolve.status === 200){ 
@@ -155,56 +124,51 @@ const handleSubmitRegister = (e) => {
 
     return (<div className={style.mainContainer}>
         <h2 className={style.headTitle}>Форма регистрации</h2>
-        {role === ROLE.applicant && <form className={style.form} onSubmit={handleSubmitRegister}>
-        <label className={style.label}>
-            Имя
-          <input
-            className={style.input}
-            name="name"
-            required
-            type="text"
-            value={valueName}
-            onChange={handleChangeName}
+        {role === ROLE.applicant && <form className={style.formStretch} onSubmit={handleSubmitRegister}>
+          <TextField
+          style = {{marginBottom: '0.5rem'}}
+          label="Имя"
+          id="outlined-size-small"
+          size="small"
+          value={valueName}
+          onChange={handleChangeName}
+        />
+
+<div className={style.label}>
+        <Autocomplete
+        multiple
+        value={valueCategoryJob}
+        onChange={handleChangeCategoryJob}
+        id="tags-outlined"
+        options={categoriesJobs}
+        getOptionLabel={(option) => option.name}
+        filterSelectedOptions
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Категории работы"
           />
-        </label>
+        )}
+      />
+</div>
 
-        <label className={style.label}>
-        Категории работы
-        <p>Выбранные категории: {selectedVacancyId.join(', ')}</p>
-          <select
-            className={style.input}
-            value={valueCategoryJob}
-            onChange={handleChangeCategoryJob}
-          >
-               <option value=''>
-                выберите вакансии из списка
-              </option>
-            {filteredVacancy.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={style.label}>
-        Локация 
-        <p>Выбранные страны: {selectedCountryId.join(', ')}</p>
-          <select
-            className={style.input}
-            value={valueLocation}
-            onChange={handleChangeLocation}
-          >
-              <option value=''>
-                выберите странны из списка
-              </option>
-            {filteredLocations.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </label>
+<div className={style.label}>
+        <Autocomplete
+        multiple
+        value={valueLocation}
+        onChange={handleChangeLocation}
+        id="tags-outlined"
+        options={locations}
+        getOptionLabel={(option) => option.name}
+        filterSelectedOptions
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Локация"
+          />
+        )}
+      />
+</div>
 
         <label className={style.label}>
         Размер ЗП {sliderValueSalary}
@@ -220,38 +184,30 @@ const handleSubmitRegister = (e) => {
         />
         </label>
 
-          <button type="submit" className={style.btnSubmit}>
-            Сохранить
-          </button>
+        <Button variant="contained" type="submit">Сохранить</Button>
       </form>}
+
       {role === ROLE.employer && <form className={style.form} onSubmit={handleSubmitRegister}>
-        <label className={style.label}>
-            Имя
-          <input
-            className={style.input}
-            name="name"
-            required
-            type="text"
-            value={valueName}
-            onChange={handleChangeName}
-          />
-        </label>
-
-        <label className={style.label}>
-            Название организации
-          <input
-            className={style.input}
-            name="company"
-            required
-            type="text"
-            value={valueCompanyName}
-            onChange={handleChangeNameCompany}
-          />
-        </label>
-
-          <button type="submit" className={style.btnSubmit}>
-            Сохранить
-          </button>
+        <div className={style.label}>
+          <TextField
+          label="Имя"
+          id="outlined-size-small"
+          size="small"
+          value={valueName}
+          onChange={handleChangeName}
+        />
+        </div>
+        <div className={style.label}>
+          <TextField
+          label="Название организации"
+          id="outlined-size-small"
+          size="small"
+          value={valueCompanyName}
+          onChange={handleChangeNameCompany}
+        />
+        </div>
+        
+        <Button variant="contained" type="submit">Сохранить</Button>
       </form>}
     </div>)
 }
