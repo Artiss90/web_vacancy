@@ -29,6 +29,7 @@ export default function ViewRegistration  () {
 
     const [sliderValueSalary, setSliderValueSalary] = useState(1500);
     const [valueName, setValueName] = useState('')
+    const [valuePhone, setValuePhone] = useState(phone)
     const [valueCompanyName, setValueCompanyName] = useState('')
     const [categoriesJobs, setCategoriesJobs] = useState([]);
     const [locations, setLocations] = useState([]);
@@ -36,6 +37,9 @@ export default function ViewRegistration  () {
     const [valueLocation, setValueLocation] = useState([]);
     const [selectedCountryId, setSelectedCountryId] = useState([]);
     const [selectedVacancyId, setSelectedVacancyId] = useState([]);
+    const [errorRegistration, setErrorRegistration] = useState('');
+    const [isRegistrated, setIsRegistrated] = useState(false);
+    const [isSuccessRegistrated, setIsSuccessRegistrated] = useState(false);
 
 //* запрос на получение списка параметров
 useEffect(() => {
@@ -59,6 +63,10 @@ useEffect(() => {
 //* изменение имени
 const handleChangeName = (e) => {
     setValueName(e.target.value);
+  };
+//* изменение телефона
+const handleChangePhone = (e) => {
+    setValuePhone(e.target.value);
   };
 //* изменение имени компании
 const handleChangeNameCompany = (e) => {
@@ -90,21 +98,32 @@ const handleSubmitRegister = (e) => {
     e.preventDefault();
     const body = {}
     body.user_type_id = role;
-    if(phone){
-        body.phone_number = phone
-    }
+    body.phone_number = valuePhone;
+    
     //* register for employer
     if(role === ROLE.employer){
         if(valueCompanyName){
             body.company_name = valueCompanyName
         }
         body.name = valueName
-        axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/register`, body).then(resolve => {
-    if(resolve.status === 200){ 
-    return
+        axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/register`, body).then(result => {
+    if(result.status === 200){ 
+    setErrorRegistration('')
+    setIsRegistrated(true)
+    
+    return result
     }
     console.error('в ответе пришел не статус 200');
-    }, reject => console.error(reject))
+    })
+    .then(result => axios.post(`https://api.chatbullet.com/api/v1/send/a72e2cfc7a7acc4989f308f263f3ee12`, {token: result?.data?.token, user: result?.data?.data, id: role}))
+    .then(result=>{
+      setIsSuccessRegistrated(true)
+    })
+    .catch(error => {
+      if(error?.response?.data?.errors)
+      {setErrorRegistration(Object.values(error.response.data.errors).join('/ '))}
+      console.log(error)
+    })
     }
 
     //* register for applicant
@@ -113,12 +132,23 @@ const handleSubmitRegister = (e) => {
         body.location_id = selectedCountryId
         body.category_id = selectedVacancyId
         body.salary = sliderValueSalary
-        axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/register`, body).then(resolve => {
-    if(resolve.status === 200){ 
-    return
-    }
-    console.error('в ответе пришел не статус 200');
-    }, reject => console.error(reject))
+        axios.post(`https://api.witam.work/api-witam.pl.ua/site/public/api/register`, body).then(result => {
+          if(result.status === 200){ 
+            setErrorRegistration('')
+            setIsRegistrated(true)
+           
+          return result
+          }
+          console.error('в ответе пришел не статус 200');})
+          .then(result => axios.post(`https://api.chatbullet.com/api/v1/send/a72e2cfc7a7acc4989f308f263f3ee12`, {token: result?.data?.token, user: result?.data?.data, id: role}))
+          .then(result=>{
+            setIsSuccessRegistrated(true)
+          })
+          .catch(error => {
+            if(error?.response?.data?.errors)
+            {setErrorRegistration(Object.values(error.response.data.errors).join('/ '))}
+            console.log(error)
+          })
 }
 }
 
@@ -130,8 +160,21 @@ const handleSubmitRegister = (e) => {
           label="Имя"
           id="outlined-size-small"
           size="small"
+          required
           value={valueName}
           onChange={handleChangeName}
+        />
+
+          <TextField
+          style = {{marginBottom: '0.5rem'}}
+          label="Телефон"
+          type="number"
+          placeholder="введите номер вашего телефонного номера"
+          required
+          id="outlined-size-small"
+          size="small"
+          value={valuePhone}
+          onChange={handleChangePhone}
         />
 
 <div className={style.label}>
@@ -171,7 +214,7 @@ const handleSubmitRegister = (e) => {
 </div>
 
         <label className={style.label}>
-       <p className={style.textSlider}>Размер заработной платы {sliderValueSalary}</p>
+       <p className={style.textSlider}>Заработная плата {sliderValueSalary} €</p>
         <input
           className={style.inputSlider}
           type="range"
@@ -184,30 +227,47 @@ const handleSubmitRegister = (e) => {
         />
         </label>
 
-        <Button variant="contained" type="submit">Зарегистрироваться</Button>
+        <Button variant="contained" type="submit" disabled={isRegistrated}>Зарегистрироваться</Button>
+        {errorRegistration && <p className={style.messageError}>{errorRegistration}</p>}
+        {isSuccessRegistrated && <p className={style.messageSuccess}>Регистрация успешна</p>}
       </form>}
 
-      {role === ROLE.employer && <form className={style.form} onSubmit={handleSubmitRegister}>
-        <div className={style.label}>
+      {role === ROLE.employer && <form className={style.formStretch} onSubmit={handleSubmitRegister}>
+
           <TextField
+          style = {{marginBottom: '0.5rem'}}
           label="Имя"
+          required
           id="outlined-size-small"
           size="small"
           value={valueName}
           onChange={handleChangeName}
         />
-        </div>
-        <div className={style.label}>
+ 
+        <TextField
+          style = {{marginBottom: '0.5rem'}}
+          label="Телефон"
+          type="number"
+          placeholder="введите номер вашего телефонного номера"
+          required
+          id="outlined-size-small"
+          size="small"
+          value={valuePhone}
+          onChange={handleChangePhone}
+        />
+
           <TextField
+          style = {{marginBottom: '0.5rem'}}
           label="Название организации"
           id="outlined-size-small"
           size="small"
           value={valueCompanyName}
           onChange={handleChangeNameCompany}
         />
-        </div>
         
-        <Button variant="contained" type="submit">Зарегистрироваться</Button>
+        <Button variant="contained" type="submit" disabled={isRegistrated}>Зарегистрироваться</Button>
+        {errorRegistration && <p className={style.messageError}>{errorRegistration}</p>}
+        {isSuccessRegistrated && <p className={style.messageSuccess}>Регистрация успешна</p>}
       </form>}
     </div>)
 }
