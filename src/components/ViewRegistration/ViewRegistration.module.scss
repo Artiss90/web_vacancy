@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    width: 100vw;
     align-items: center;
     padding-top: 10px;
     @media screen and (max-width: 1023px) {
@@ -17,7 +18,7 @@
     padding: 10px ;
     width: 100%;
     max-width: 600px;
-    background-color: rgba(128, 128, 128, 0.4);
+    // background-color: rgba(128, 128, 128, 0.4);
     border-radius: 10px;}
 .formStretch{
   @extend .form;
@@ -28,6 +29,10 @@
   display: block;
   width: 100%;
   margin-bottom: 0.5rem;
+}
+.textSlider {
+  padding-left: 16px;
+  text-align: start;
 }
 /* стили для input */
 .input {
@@ -50,6 +55,7 @@
 .inputSlider{
 @extend .input;
 padding-right: 0;
+padding-left: 0;
 }
 .btnSubmit{
 @extend .input;  

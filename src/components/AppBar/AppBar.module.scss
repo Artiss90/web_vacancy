@@ -2,7 +2,7 @@
 
 .container {
     max-width: 600px;
-    width: 100%;
+    width: 100vw;
     min-width: 250px; // ? минимально-читаемый размер блока
     max-width: $messages-container-width;
     min-height: 100%;

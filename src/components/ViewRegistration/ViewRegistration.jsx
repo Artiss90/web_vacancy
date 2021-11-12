@@ -171,7 +171,7 @@ const handleSubmitRegister = (e) => {
 </div>
 
         <label className={style.label}>
-        Размер ЗП {sliderValueSalary}
+       <p className={style.textSlider}>Размер заработной платы {sliderValueSalary}</p>
         <input
           className={style.inputSlider}
           type="range"
@@ -184,7 +184,7 @@ const handleSubmitRegister = (e) => {
         />
         </label>
 
-        <Button variant="contained" type="submit">Сохранить</Button>
+        <Button variant="contained" type="submit">Зарегистрироваться</Button>
       </form>}
 
       {role === ROLE.employer && <form className={style.form} onSubmit={handleSubmitRegister}>
@@ -207,7 +207,7 @@ const handleSubmitRegister = (e) => {
         />
         </div>
         
-        <Button variant="contained" type="submit">Сохранить</Button>
+        <Button variant="contained" type="submit">Зарегистрироваться</Button>
       </form>}
     </div>)
 }

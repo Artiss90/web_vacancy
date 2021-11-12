@@ -12,6 +12,9 @@
   background-repeat: no-repeat;
   background-size: cover;
 }
+.containerAppRegistration{
+  background: #fff;
+}
 @media screen and (min-width: 1024px) {
   .containerApp {
   min-height: 100vh;
