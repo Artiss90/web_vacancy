@@ -16,7 +16,7 @@ export default function ViewRegistration  () {
     const search = createBrowserHistory().location.search; // * текущий параметр строки браузера
     const parsedSearch = queryString.parse(search); // * массив параметров строки браузера
     const role = Number(parsedSearch['role']);
-    const phone = `+${parsedSearch['phone']?.trim()}` || '';
+    const phone = parsedSearch['phone'] ? `+${parsedSearch['phone'].trim()}` : '';
 
     const [sliderValueSalary, setSliderValueSalary] = useState(1500);
     const [valueName, setValueName] = useState('')
