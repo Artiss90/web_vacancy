@@ -17,16 +17,6 @@ export default function ViewRegistration  () {
     const parsedSearch = queryString.parse(search); // * массив параметров строки браузера
     const role = Number(parsedSearch['role']);
     const phone = parsedSearch['phone'] || '';
-    
-    //* хедеры по-умолчанию
-    const memoizedHeader = useMemo(() => { 
-            const headers = {
-            'X-Requested-With': 'XMLHttpRequest',
-            "Access-Control-Allow-Origin": "*"
-        }
-    return headers}, []);
-    
-    axios.defaults.headers = memoizedHeader //* хедеры по умолчанию для всех запросов
 
     const [sliderValueSalary, setSliderValueSalary] = useState(1500);
     const [valueName, setValueName] = useState('')
