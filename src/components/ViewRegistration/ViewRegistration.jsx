@@ -1,5 +1,5 @@
 import style from './ViewRegistration.module.scss';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createBrowserHistory } from 'history'
 import queryString from 'query-string'
 import TextField from '@mui/material/TextField';
@@ -16,7 +16,7 @@ export default function ViewRegistration  () {
     const search = createBrowserHistory().location.search; // * текущий параметр строки браузера
     const parsedSearch = queryString.parse(search); // * массив параметров строки браузера
     const role = Number(parsedSearch['role']);
-    const phone = parsedSearch['phone'] || '';
+    const phone = `+${parsedSearch['phone']?.trim()}` || '';
 
     const [sliderValueSalary, setSliderValueSalary] = useState(1500);
     const [valueName, setValueName] = useState('')
