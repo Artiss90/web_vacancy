@@ -219,9 +219,9 @@ const handleSubmitRegister = (e) => {
           className={style.inputSlider}
           type="range"
           value={sliderValueSalary}
-          min="1000"
+          min="500"
           max="3500"
-          step="500"
+          step="100"
           id="myRange"
           onChange={changeSliderValueSalary}
         />
