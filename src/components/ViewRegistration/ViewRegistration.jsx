@@ -21,7 +21,8 @@ export default function ViewRegistration  () {
     //* хедеры по-умолчанию
     const memoizedHeader = useMemo(() => { 
             const headers = {
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            "Access-Control-Allow-Origin": "*"
         }
     return headers}, []);
     
@@ -168,7 +169,7 @@ const handleSubmitRegister = (e) => {
           <TextField
           style = {{marginBottom: '0.5rem'}}
           label="Телефон"
-          type="number"
+          type="tel"
           placeholder="введите номер вашего телефонного номера"
           required
           id="outlined-size-small"
