@@ -106,7 +106,7 @@ const handleSubmitRegister = (e) => {
     }
     console.error('в ответе пришел не статус 200');
     })
-    .then(result => axios.post(`https://api.chatbullet.com/api/v1/send/a72e2cfc7a7acc4989f308f263f3ee12`, {token: result?.data?.token, user: result?.data?.data, id: role, phone: valuePhone}))
+    .then(result => axios.post(`https://api.chatbullet.com/api/v1/send/a72e2cfc7a7acc4989f308f263f3ee12/1000345`, {token: result?.data?.token, user: result?.data?.data, id: role, phone: valuePhone}))
     .then(result=>{
       setIsSuccessRegistrated(true)
     })
