@@ -238,7 +238,7 @@ const handleSubmitRegister = (e) => {
         <TextField
           style = {{marginBottom: '0.5rem'}}
           label="Телефон"
-          type="number"
+          type="tel"
           placeholder="введите номер вашего телефонного номера"
           required
           id="outlined-size-small"
