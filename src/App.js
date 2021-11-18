@@ -20,7 +20,8 @@ appHeight() // ? динамически определяем высоту экр
 
   return <div className={sn('containerApp', {containerAppRegistration: isViewRegistration})}>
     <Switch>
-        <Route exact path="/" component={AppBar} />
+        <Route exact path="/admin" component={AppBar} />
+        <Route exact path="/customer" component={AppBar} />
         <Route exact path="/registration" component={ViewRegistration} />
     </Switch>
   </div>;

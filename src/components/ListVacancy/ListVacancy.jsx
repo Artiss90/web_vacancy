@@ -224,7 +224,7 @@ return headers}, [clientToken]);
                         <ul className={style.list}>
                             {!checkItem ?
                                 paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, category_name, description }) => {
-                                    const categoryName = category ? category[0].name : category_name; 
+                                    const categoryName = category.length > 0 ? category.map(item => item.name).join(', ') : category_name;
                                     const dataCountry = location_name.split(' ');
                                     const countryAlt = dataCountry[0];
                                     const country = dataCountry[1];
@@ -249,7 +249,7 @@ return headers}, [clientToken]);
                                     if (checkItem !== id) {
                                         return false
                                     }
-                                    const categoryName = category ? category[0].name : category_name;
+                                    const categoryName = category.length > 0 ? category.map(item => item.name).join(', ') : category_name;
                                     const dataCountry = location_name.split(' ');
                                     const countryAlt = dataCountry[0];
                                     const country = dataCountry[1];
