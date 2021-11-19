@@ -4,7 +4,14 @@ import { createBrowserHistory } from 'history'
 import queryString from 'query-string'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Autocomplete from '@mui/material/Autocomplete';
+import { useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Chip from '@mui/material/Chip';
 import axios from 'axios';
 
 const ROLE = {
@@ -12,7 +19,29 @@ const ROLE = {
     applicant: 4
 }
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+function getStyles(name, values, theme) {
+  const style = {
+    fontWeight:
+    values.indexOf(name) === -1
+    ? theme.typography.fontWeightRegular
+    : theme.typography.fontWeightMedium,
+  };
+  return style
+}
+
 export default function ViewRegistration  () {
+    const theme = useTheme();
     const search = createBrowserHistory().location.search; // * текущий параметр строки браузера
     const parsedSearch = queryString.parse(search); // * массив параметров строки браузера
     const role = Number(parsedSearch['role']);
@@ -23,11 +52,11 @@ export default function ViewRegistration  () {
     const [valuePhone, setValuePhone] = useState(phone)
     const [valueCompanyName, setValueCompanyName] = useState('')
     const [categoriesJobs, setCategoriesJobs] = useState([]);
-    const [locations, setLocations] = useState([]);
+    const [nameCategoriesJobs, setNameCategoriesJobs] = useState([]);
     const [valueCategoryJob, setValueCategoryJob] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [nameLocations, setNameLocations] = useState([]);
     const [valueLocation, setValueLocation] = useState([]);
-    const [selectedCountryId, setSelectedCountryId] = useState([]);
-    const [selectedVacancyId, setSelectedVacancyId] = useState([]);
     const [errorRegistration, setErrorRegistration] = useState('');
     const [isRegistrated, setIsRegistrated] = useState(false);
     const [isSuccessRegistrated, setIsSuccessRegistrated] = useState(false);
@@ -39,12 +68,16 @@ useEffect(() => {
         const findCategoriesData = allParams.find( item =>item.original.message === "Список категорий успешно получен")
         const findLocationsData = allParams.find( item =>item.original.message === "Список локализаций успешно получен")
         if (findCategoriesData){
-         const categories = Object.values(findCategoriesData?.original?.data?.categories)
-         setCategoriesJobs(categories)
+         const allCategories = Object.values(findCategoriesData?.original?.data?.categories)
+         setCategoriesJobs(allCategories)
+         const nameCategories = allCategories.map(item=>item.name)
+         setNameCategoriesJobs(nameCategories)
         }
         if (findLocationsData){
          const allLocations = Object.values(findLocationsData?.original?.data?.locations)
          setLocations(allLocations)
+         const nameLocations = allLocations.map(item=>item.name)
+         setNameLocations(nameLocations)
         }
     }, reject => {
         console.error(reject)})
@@ -69,21 +102,25 @@ const changeSliderValueSalary = (e) => {
     setSliderValueSalary(e.target.value)
 }
 //* изменение категории роботы
-const handleChangeCategoryJob = (e, newValue) => {
-    //* нахождение вакансии по id 
-    const getVacanciesId = newValue.map( item=> Number(item.id))
-    setSelectedVacancyId(getVacanciesId) 
-    
-    setValueCategoryJob(newValue);
-  };
+const handleChangeCategoryJob = (event) => {
+  const {
+    target: { value },
+  } = event;
+  setValueCategoryJob(
+    // On autofill we get a the stringified value.
+    typeof value === 'string' ? value.split(',') : value,
+  );
+};
 //* изменение локации
-const handleChangeLocation = (e, newValue) => {
-    //* нахождение страны по id 
-    const getCountriesId = newValue.map( item=> Number(item.id))
-    setSelectedCountryId(getCountriesId)
-   
-    setValueLocation(newValue);
-  };
+const handleChangeLocation = (event) => {
+  const {
+    target: { value },
+  } = event;
+  setValueLocation(
+    // On autofill we get a the stringified value.
+    typeof value === 'string' ? value.split(',') : value,
+  );
+};
 //* отправка формы  
 const handleSubmitRegister = (e) => {
     e.preventDefault();
@@ -119,6 +156,17 @@ const handleSubmitRegister = (e) => {
 
     //* register for applicant
     if(role === ROLE.applicant){
+      const selectedById = (list, selectedItems) => {
+        return list.reduce((acc, value) => {
+          const includesName = selectedItems.includes(value.name)
+          if(includesName){ 
+            acc = [...acc, value.id]
+          }
+          return acc
+        }, []);  
+      }
+      const selectedVacancyId = selectedById(categoriesJobs, valueCategoryJob)
+      const selectedCountryId = selectedById(locations, valueLocation)
         body.name = valueName
         body.location_id = selectedCountryId
         body.category_id = selectedVacancyId
@@ -168,41 +216,65 @@ const handleSubmitRegister = (e) => {
           onChange={handleChangePhone}
         />
 
-<div className={style.label}>
-        <Autocomplete
-        multiple
-        value={valueCategoryJob}
-        onChange={handleChangeCategoryJob}
-        id="tags-outlined"
-        options={categoriesJobs}
-        getOptionLabel={(option) => option.name}
-        filterSelectedOptions
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Категории работы"
-          />
-        )}
-      />
-</div>
+<FormControl sx={{ mb: 1 }} className={style.label}>
+    <InputLabel id="demo-multiple-chip-label">Категории работы</InputLabel>
+        <Select
+          labelId="demo-multiple-chip-label"
+          id="demo-multiple-chip"
+          multiple
+          value={valueCategoryJob}
+          onChange={handleChangeCategoryJob}
+          input={<OutlinedInput id="select-multiple-chip" label="Категории работы" />}
+          renderValue={(selected) => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {selected.map((name) => (
+                <Chip key={name} label={name} />
+              ))}
+            </Box>
+          )}
+          MenuProps={MenuProps}
+        >
+          {nameCategoriesJobs.map((name) =>(
+            <MenuItem
+              key={name}
+              value={name}
+              style={getStyles(name, valueCategoryJob, theme)}
+            >
+              {name}
+            </MenuItem>
+          ))}
+        </Select>
+        </FormControl>
 
-<div className={style.label}>
-        <Autocomplete
-        multiple
-        value={valueLocation}
-        onChange={handleChangeLocation}
-        id="tags-outlined"
-        options={locations}
-        getOptionLabel={(option) => option.name}
-        filterSelectedOptions
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Локация"
-          />
-        )}
-      />
-</div>
+<FormControl sx={{ mb: 1 }} className={style.label}>
+    <InputLabel id="demo-multiple-chip-label">Локация</InputLabel>
+        <Select
+          labelId="demo-multiple-chip-label"
+          id="demo-multiple-chip"
+          multiple
+          value={valueLocation}
+          onChange={handleChangeLocation}
+          input={<OutlinedInput id="select-multiple-chip" label="Локация" />}
+          renderValue={(selected) => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {selected.map((name) => (
+                <Chip key={name} label={name} />
+              ))}
+            </Box>
+          )}
+          MenuProps={MenuProps}
+        >
+          {nameLocations.map((name) =>(
+            <MenuItem
+              key={name}
+              value={name}
+              style={getStyles(name, valueLocation, theme)}
+            >
+              {name}
+            </MenuItem>
+          ))}
+        </Select>
+        </FormControl>
 
         <label className={style.label}>
        <p className={style.textSlider}>Заработная плата {sliderValueSalary} €</p>
