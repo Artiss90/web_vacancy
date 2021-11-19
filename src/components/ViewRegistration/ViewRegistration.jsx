@@ -217,11 +217,12 @@ const handleSubmitRegister = (e) => {
         />
 
 <FormControl sx={{ mb: 1 }} className={style.label}>
-    <InputLabel id="demo-multiple-chip-label">Категории работы</InputLabel>
+    <InputLabel id="demo-multiple-chip-label">Категории работы*</InputLabel>
         <Select
           labelId="demo-multiple-chip-label"
           id="demo-multiple-chip"
           multiple
+          required
           value={valueCategoryJob}
           onChange={handleChangeCategoryJob}
           input={<OutlinedInput id="select-multiple-chip" label="Категории работы" />}
@@ -247,14 +248,15 @@ const handleSubmitRegister = (e) => {
         </FormControl>
 
 <FormControl sx={{ mb: 1 }} className={style.label}>
-    <InputLabel id="demo-multiple-chip-label">Локация</InputLabel>
+    <InputLabel id="demo-multiple-chip-label">Локация*</InputLabel>
         <Select
           labelId="demo-multiple-chip-label"
           id="demo-multiple-chip"
           multiple
+          required
           value={valueLocation}
           onChange={handleChangeLocation}
-          input={<OutlinedInput id="select-multiple-chip" label="Локация" />}
+          input={<OutlinedInput id="select-multiple-chip" label="Локация*" />}
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
               {selected.map((name) => (
