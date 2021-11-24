@@ -46,6 +46,18 @@ export default function ViewRegistration  () {
     const parsedSearch = queryString.parse(search); // * массив параметров строки браузера
     const role = Number(parsedSearch['role']);
     const phone = parsedSearch['phone'] ? `+${parsedSearch['phone'].trim()}` : '';
+    const redirectUrl = parsedSearch['redirect'];
+    console.log("🚀 ~ file: ViewRegistration.jsx ~ line 50 ~ ViewRegistration ~ redirectUrl", redirectUrl)
+    const paramsForUrlRequest = Object.entries(parsedSearch).reduce((acc, item)=>{
+      const name = item[0]
+      const value = item[1]
+      // * добавляем все параметры кроме v_limit, user-id, client
+      if(name !== 'phone' && name !== 'role' && name !== 'redirect'){
+         acc = acc.length === 0 ? `${name}=${value}` : `${acc}&${name}=${value}`;
+      }
+      return acc
+  }, '')
+    console.log("🚀 ~ file: ViewRegistration.jsx ~ line 60 ~ paramsForUrlRequest ~ paramsForUrlRequest", paramsForUrlRequest)
 
     const [sliderValueSalary, setSliderValueSalary] = useState(1500);
     const [valueName, setValueName] = useState('')
@@ -84,6 +96,13 @@ useEffect(() => {
         getDataAllParams()
 }, [])
 
+useEffect(() => {
+  if(isSuccessRegistrated && redirectUrl){
+    const url = `${redirectUrl}?${paramsForUrlRequest}`;
+
+    window.open(url,"_self")
+  }
+}, [isSuccessRegistrated, paramsForUrlRequest, redirectUrl])
 //* изменение имени
 const handleChangeName = (e) => {
     setValueName(e.target.value);

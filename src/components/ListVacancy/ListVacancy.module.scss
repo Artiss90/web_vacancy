@@ -172,3 +172,8 @@ max-width: 100%;
 .locationItem{
     min-width: 49%;
 }
+.textNull {
+    @extend .text;
+    display: inline-flex;
+    padding: 20px;
+  }

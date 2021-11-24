@@ -43,9 +43,19 @@ export default function ListVacancy() {
     const ROLE = createBrowserHistory().location.pathname.replace(/\//g, '') || ROLE_CUSTOMER; // * текущий путь
 
     const parsedSearch = queryString.parse(search); // * массив параметров
+    const paramsForUrlRequest = Object.entries(parsedSearch).reduce((acc, item)=>{
+        const name = item[0]
+        const value = item[1]
+        // * добавляем все параметры кроме v_limit, user-id, client
+        if(name !== 'v_limit' && name !== 'user-id' && name !== 'client'){
+           acc = acc.length === 0 ? `${name}=${value}` : `${acc}&${name}=${value}`;
+        }
+        return acc
+    }, '')
+    console.log("🚀 ~ file: ListVacancy.jsx ~ line 47 ~ ListVacancy ~ paramsForUrlRequest", paramsForUrlRequest)
     const clientToken = parsedSearch.client
-    const orderBy = parsedSearch['order[by]'] || 'id';
-    const orderWay = parsedSearch['order[way]'] || 'desc';
+    // const orderBy = parsedSearch['order[by]'] || 'id';
+    // const orderWay = parsedSearch['order[way]'] || 'desc';
     const userId = parsedSearch['user-id'];
     const AMOUNT_VISIBLE_VACANCY = +parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
     const memoizedHeader = useMemo(() => {
@@ -60,15 +70,15 @@ return headers}, [clientToken]);
 
     useEffect(() => {
         setLoading(true)
-        const getDataVacancyCustomer = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers?order[by]=${orderBy}&order[way]=${orderWay}`).then(resolve => {
+        const getDataVacancyCustomer = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/offers?${paramsForUrlRequest}`).then(resolve => {
             setListVacancy(resolve.data.data.offers)
             setLoading(false)
         }, reject => {
             setLoading(false)
             console.error(reject)})
-        const getDataVacancyEmployer = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/userOffers/${userId}`
+        const getDataVacancyEmployer = () => axios.get(`https://api.witam.work/api-witam.pl.ua/site/public/api/userOffers/${userId}?${paramsForUrlRequest}`
     ).then(resolve => {
-            setListVacancy(resolve.data.data.user_offers) 
+            setListVacancy(resolve.data.data.user_offers)
             setLoading(false)
         }, reject => {
             setLoading(false)
@@ -76,7 +86,7 @@ return headers}, [clientToken]);
             if(ROLE === ROLE_CUSTOMER){ getDataVacancyCustomer()}
             if(ROLE === ROLE_EMPLOYER){ getDataVacancyEmployer()}
             
-    }, [ROLE, clientToken, memoizedHeader, orderBy, orderWay, userId, refresh])
+    }, [ROLE, clientToken, memoizedHeader, userId, refresh, paramsForUrlRequest])
 
     useEffect(() => {
         setLoading(true)
@@ -221,6 +231,9 @@ return headers}, [clientToken]);
                     </div> 
                    :
                     <div className={sn('containerVacancyData', {containerVacancyDataForCustomer: (!checkItem || ROLE === ROLE_CUSTOMER)})}>
+                            {/* // ? Вывод сообщения при пустом массиве вакансий */}
+                            {paginationVacancy.length === 0 && <p className={sn('textNull')}>Вакансий по заданным критериям не найдено</p>}
+                        
                         <ul className={style.list}>
                             {!checkItem ?
                                 paginationVacancy.map(({ id, updated_at, location_name, name, salary, salary_unit_name, category, category_name, description }) => {
