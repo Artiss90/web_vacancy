@@ -140,7 +140,13 @@ const handleSubmitRegister = (e) => {
     
     return result
     })
-    .then(result => axios.post(`https://api.chatbullet.com/api/v1/send/a72e2cfc7a7acc4989f308f263f3ee12/1000345`, {token: result?.data?.token, user: result?.data?.data, id: role, phone: valuePhone}))
+    .then(result => {
+      const bodyRequest = {
+        token: result?.data?.token, 
+        user: result?.data?.data,
+        id: role, phone: valuePhone}
+      console.log("🚀 ~ bodyRequest", bodyRequest)
+      return axios.post(`https://api.chatbullet.com/api/v1/send/a72e2cfc7a7acc4989f308f263f3ee12/1000345`, bodyRequest)})
     .then(result=>{
       setIsSuccessRegistrated(true)
     })
@@ -172,7 +178,13 @@ const handleSubmitRegister = (e) => {
             setErrorRegistration('')
             setIsRegistrated(true)
           return result})
-          .then(result => axios.post(`https://api.chatbullet.com/api/v1/send/a72e2cfc7a7acc4989f308f263f3ee12/1000345`, {token: result?.data?.token, user: result?.data?.data, id: role, phone: valuePhone}))
+          .then(result => {
+           const bodyRequest = {
+            token: result?.data?.token, 
+            user: result?.data?.data,
+            id: role, phone: valuePhone}
+          console.log("🚀 ~ bodyRequest", bodyRequest)
+            return axios.post(`https://api.chatbullet.com/api/v1/send/a72e2cfc7a7acc4989f308f263f3ee12/1000345`, bodyRequest)})
           .then(result=>{
             setIsSuccessRegistrated(true)
           })
