@@ -52,10 +52,7 @@ export default function ListVacancy() {
         }
         return acc
     }, '')
-    console.log("🚀 ~ file: ListVacancy.jsx ~ line 47 ~ ListVacancy ~ paramsForUrlRequest", paramsForUrlRequest)
     const clientToken = parsedSearch.client
-    // const orderBy = parsedSearch['order[by]'] || 'id';
-    // const orderWay = parsedSearch['order[way]'] || 'desc';
     const userId = parsedSearch['user-id'];
     const AMOUNT_VISIBLE_VACANCY = +parsedSearch['v_limit'] || 4; // ? количество отображаемых вакансий на странице
     const memoizedHeader = useMemo(() => {
@@ -247,8 +244,9 @@ return headers}, [clientToken]);
 
                                     const date = new Date(updated_at);
                                     const visibleDate = date.toLocaleString();
-
-                                    return (<li className={sn('item')} key={id}>
+                                    const key = id + categoryName
+                                    
+                                    return (<li className={sn('item')} key={key}>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
                                         <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{`Вакансия: ${name}`}</p>
@@ -274,8 +272,9 @@ return headers}, [clientToken]);
 
                                     const date = new Date(updated_at);
                                     const visibleDate = date.toLocaleString();
-
-                                    return (<li className={sn('item')} key={id}>
+                                    const key = id + categoryName
+                                    
+                                    return (<li className={sn('item')} key={key}>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/23f0.png" alt="⏰" />{visibleDate}</p>
                                         <p className={style.text}>{`${countryAlt} ${country} ${city}`}</p>
                                         <p className={style.text}><img className={style.icon} src="https://web.telegram.org/z/img-apple-64/1f50d.png" alt="🔍" />{fieldName === LIST_FIELD_NAME.name 
