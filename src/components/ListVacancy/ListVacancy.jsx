@@ -46,9 +46,16 @@ export default function ListVacancy() {
     const paramsForUrlRequest = Object.entries(parsedSearch).reduce((acc, item)=>{
         const name = item[0]
         const value = item[1]
+        const isArray = Array.isArray(value)
+
         // * добавляем все параметры кроме v_limit, user-id, client
         if(name !== 'v_limit' && name !== 'user-id' && name !== 'client'){
-           acc = acc.length === 0 ? `${name}=${value}` : `${acc}&${name}=${value}`;
+            // ? если значения параметра ето массив, отдаем их по 1
+            if (isArray){
+                value.forEach( valueFromArray =>{
+                    acc = acc.length === 0 ? `${name}=${valueFromArray}` : `${acc}&${name}=${valueFromArray}`;
+                })
+        } else {acc = acc.length === 0 ? `${name}=${value}` : `${acc}&${name}=${value}`;}
         }
         return acc
     }, '')
